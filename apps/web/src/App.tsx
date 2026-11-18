@@ -415,75 +415,84 @@ export const App: React.FC = () => {
         {/* ==================================================================== */}
         {/* EXPERIENCE 1: AUTONOMOUS WELCOME & 3D AI CORE */}
         {/* ==================================================================== */}
-        <section className="relative glass-panel rounded-3xl p-8 mb-10 border border-slate-200/90 shadow-glass overflow-hidden bg-gradient-to-b from-white via-slate-50/50 to-white">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <section className="relative glass-panel rounded-3xl p-6 sm:p-10 mb-12 border border-slate-200/90 shadow-glass overflow-hidden bg-gradient-to-b from-white via-slate-50/40 to-white">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             {/* Hero Copy */}
-            <div className="lg:col-span-7 space-y-5">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-electric-50 border border-electric-200/70 text-electric-700 text-xs font-semibold">
-                <Sparkles className="w-3.5 h-3.5 text-electric-600" />
-                Autonomous Portfolio Engine • Continuous Verification
+            <div className="lg:col-span-6 space-y-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-electric-50 border border-electric-200/80 text-electric-700 text-xs font-semibold shadow-sm">
+                <Sparkles className="w-3.5 h-3.5 text-electric-600 animate-pulse" />
+                <span>AUTONOMOUS MULTI-AGENT PORTFOLIO ENGINE</span>
               </div>
 
-              <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-900 leading-[1.15]">
-                Your work. <br />
-                <span className="bg-gradient-to-r from-electric-600 via-blue-600 to-cyan-500 bg-clip-text text-transparent">
-                  Automatically transformed & verified.
-                </span>
-              </h1>
+              <div>
+                <div className="text-xs uppercase font-mono font-bold tracking-widest text-slate-400 mb-1">
+                  Yashwanth Reddy G • Systems & Applied ML Architect
+                </div>
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 leading-[1.08]">
+                  Your work. <br />
+                  <span className="bg-gradient-to-r from-electric-600 via-blue-600 to-cyan-500 bg-clip-text text-transparent">
+                    Autonomously discovered, understood & proven.
+                  </span>
+                </h1>
+              </div>
 
               <p className="text-base text-slate-600 leading-relaxed max-w-xl">
-                A flagship engineering system that discovers professional work from authorized GitHub &
-                social sources, understands codebases with custom ML, coordinates 8 specialized AI agents, and
-                cryptographically audits every public claim against immutable evidence.
+                A flagship engineering engine that connects to authorized GitHub repositories and documents,
+                classifies activity with custom ML, coordinates 8 specialized in-app agent cursors,
+                and cryptographically audits every single public claim against immutable evidence.
               </p>
 
               {/* Verified Metrics Badges */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-                <div className="p-3 rounded-2xl bg-white border border-slate-200/80 shadow-sm">
-                  <div className="text-xl font-extrabold text-slate-900 font-mono">8 Units</div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+                <div className="p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-sm hover:border-slate-300 transition-colors">
+                  <div className="text-2xl font-black text-slate-900 font-mono tracking-tight">8 Units</div>
                   <div className="text-[11px] text-slate-500 font-medium mt-0.5">Autonomous Agents</div>
                 </div>
-                <div className="p-3 rounded-2xl bg-white border border-slate-200/80 shadow-sm">
-                  <div className="text-xl font-extrabold text-emerald-600 font-mono">18 / 18</div>
+                <div className="p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-sm hover:border-slate-300 transition-colors">
+                  <div className="text-2xl font-black text-emerald-600 font-mono tracking-tight">18 / 18</div>
                   <div className="text-[11px] text-slate-500 font-medium mt-0.5">Claims Verified</div>
                 </div>
-                <div className="p-3 rounded-2xl bg-white border border-slate-200/80 shadow-sm">
-                  <div className="text-xl font-extrabold text-electric-600 font-mono">0.94 F1</div>
-                  <div className="text-[11px] text-slate-500 font-medium mt-0.5">ML Classifier</div>
+                <div className="p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-sm hover:border-slate-300 transition-colors">
+                  <div className="text-2xl font-black text-electric-600 font-mono tracking-tight">0.940</div>
+                  <div className="text-[11px] text-slate-500 font-medium mt-0.5">ML F1-Score</div>
                 </div>
-                <div className="p-3 rounded-2xl bg-white border border-slate-200/80 shadow-sm">
-                  <div className="text-xl font-extrabold text-slate-900 font-mono">100%</div>
+                <div className="p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-sm hover:border-slate-300 transition-colors">
+                  <div className="text-2xl font-black text-slate-900 font-mono tracking-tight">100%</div>
                   <div className="text-[11px] text-slate-500 font-medium mt-0.5">Zero Hallucinations</div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 pt-2">
+              <div className="flex items-center gap-3 pt-2 flex-wrap">
                 <button
                   type="button"
                   onClick={() => setActiveTab("workspace")}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-electric-600 text-white font-semibold text-xs shadow-glow hover:bg-electric-700 active:scale-95 transition-all"
+                  className="flex items-center gap-2 px-5 py-3 rounded-xl bg-electric-600 text-white font-semibold text-xs shadow-glow hover:bg-electric-700 active:scale-95 transition-all"
                 >
+                  <Cpu className="w-4 h-4" />
                   Inspect Live Agent Workspace
                   <ArrowDown className="w-3.5 h-3.5" />
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab("portfolio")}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 font-semibold text-xs hover:bg-slate-50 transition-colors"
+                  className="flex items-center gap-2 px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-700 font-semibold text-xs hover:bg-slate-50 transition-colors shadow-sm"
                 >
+                  <Layers className="w-4 h-4 text-slate-500" />
                   View Published Portfolio
                 </button>
               </div>
             </div>
 
-            {/* Interactive 3D AI Core Node */}
-            <div className="lg:col-span-5 flex flex-col items-center justify-center">
+            {/* Interactive 3D AI Core Showcase Node */}
+            <div className="lg:col-span-6 flex flex-col items-center justify-center">
               <AICore3D
                 reducedMotion={reducedMotion}
                 activeAgentId={activeAgentSelection}
+                onSelectAgent={(agentId) => setActiveAgentSelection(agentId)}
               />
-              <div className="text-center text-[11px] text-slate-400 font-mono mt-1">
-                Central AI Core • Orbiting Satellites represent active agent units
+              <div className="text-center text-[11px] text-slate-400 font-mono mt-2 flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-ping" />
+                <span>Interactive Quantum Fusion Core • Hover or click orbiting agent nodes to inspect</span>
               </div>
             </div>
           </div>
