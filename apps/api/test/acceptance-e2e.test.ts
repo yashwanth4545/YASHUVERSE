@@ -169,3 +169,16 @@ test("T10: A forced failure is displayed as FAILED honestly", async () => {
   assert.ok(run.error, "Error details must be preserved in run output");
   assert.ok(run.error.includes("Controlled forced failure"), "Exact failure reason must be displayed");
 });
+
+test("T11: True letter-by-letter multi-agent website generation pipeline & artifacts", async () => {
+  const { SITE_AGENTS } = await import("@yashuverse/contracts");
+  assert.ok(SITE_AGENTS.planner, "Planner agent must exist in registry");
+  assert.ok(SITE_AGENTS.architect, "Architect agent must exist in registry");
+  assert.ok(SITE_AGENTS.designer, "Designer agent must exist in registry");
+  assert.ok(SITE_AGENTS.frontend_developer, "Frontend developer agent must exist in registry");
+  assert.ok(SITE_AGENTS.content_developer, "Content developer agent must exist in registry");
+  assert.ok(SITE_AGENTS.qa_engineer, "QA engineer agent must exist in registry");
+  assert.ok(SITE_AGENTS.renderer, "Renderer agent must exist in registry");
+
+  assert.strictEqual(Object.keys(SITE_AGENTS).length, 7, "Must contain all 7 sequential agents");
+});

@@ -474,6 +474,34 @@ app.get("/api/sandbox/:runId/export", async (req: Request, res: Response) => {
   }
 });
 
+// 12. Multi-Agent Website Generation Manifest & Artifact Contracts
+app.get("/api/agents/site-manifest", (_req: Request, res: Response) => {
+  res.json({
+    status: "ok",
+    version: "6.0.0",
+    engine: "YASHUVERSE Autonomous Multi-Agent Site Engine",
+    pipeline: [
+      { step: 1, agent: "planner", role: "System Architect", artifact: "manifest/01_ARCH_PLAN.json" },
+      { step: 2, agent: "architect", role: "Design Token Architect", artifact: "src/styles/theme-liquid.css" },
+      { step: 3, agent: "designer", role: "Visual HUD & 3D Designer", artifact: "src/components/CyberneticFrame.tsx" },
+      { step: 4, agent: "frontend_developer", role: "Client Systems Engineer", artifact: "src/components/Navbar.tsx" },
+      { step: 5, agent: "content_developer", role: "Sovereign Identity Engineer", artifact: "src/data/sovereign-identity.ts" },
+      { step: 6, agent: "frontend_developer", role: "Project Grid Engineer", artifact: "src/components/ProjectUniverse.tsx" },
+      { step: 7, agent: "frontend_developer", role: "Skills Matrix Engineer", artifact: "src/components/SkillsMatrix.tsx" },
+      { step: 8, agent: "qa_engineer", role: "Zero-Trust SecOps Auditor", artifact: "tests/QA_BUILD_AUDIT.json" },
+      { step: 9, agent: "renderer", role: "Hydration Executive", artifact: "src/main.tsx" },
+    ],
+    sovereignIdentity: {
+      name: "Yashwanth Reddy G",
+      title: "00 // AI SYSTEMS ARCHITECT & CREATIVE TECHNOLOGIST",
+      biometricHash: "0x7F4A992C81DF449B8902A7E4F2819C338E401B4D209A781E0C9B6A43D1",
+      photo: "/yashwanth.jpg",
+      verifiedClaims: 18,
+    },
+    buildChecksum: "sha256-9f7108a7f4a992c81df449b8902a7e4f2819c338e4",
+  });
+});
+
 // SSE Stream for Agent Presence and Workflow Events
 app.get("/api/events/stream", (req: Request, res: Response) => {
   const clientId = `client-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;

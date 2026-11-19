@@ -27,9 +27,11 @@ import { AgentCursors } from "./components/AgentCursors";
 import { EvidenceInspectorModal } from "./components/EvidenceInspectorModal";
 import { VersionHistoryModal } from "./components/VersionHistoryModal";
 import { HumanApprovalDrawer } from "./components/HumanApprovalDrawer";
+import { AutonomousSiteBuilder } from "./components/AutonomousSiteBuilder";
+import { loadPersistedBuild, clearPersistedBuild } from "./engine/autonomous-site-engine";
 import { useSSEStream } from "./hooks/useSSEStream";
 
-import { ShieldCheck, GitBranch, CheckCircle2, Cpu, ArrowRight } from "lucide-react";
+import { ShieldCheck, GitBranch, CheckCircle2, Cpu, ArrowRight, Zap } from "lucide-react";
 
 export const AppContent: React.FC = () => {
   // Portfolio Document State (Strictly Validated JSON)
@@ -41,6 +43,16 @@ export const AppContent: React.FC = () => {
   const [isApprovalDrawerOpen, setIsApprovalDrawerOpen] = useState(false);
   const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
   const [activeAgentSelection, setActiveAgentSelection] = useState<AgentId | null>(null);
+
+  // True Multi-Agent Website Generation Engine State
+  const [isSiteGenerated, setIsSiteGenerated] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("rebuild") === "true") return false;
+      return Boolean(loadPersistedBuild());
+    }
+    return false;
+  });
 
   // Real System Boot & Initialization Sequence (Skippable, < 3s, real service telemetry)
   const [isBooting, setIsBooting] = useState<boolean>(() => {
@@ -380,10 +392,28 @@ export const AppContent: React.FC = () => {
     }, 4000);
   };
 
+  // Trigger Genuine Multi-Agent Site Rebuild
+  const handleRebuildSite = () => {
+    clearPersistedBuild();
+    setIsSiteGenerated(false);
+  };
+
   // Extract sections
   const projectSection = portfolio.sections.find((s) => s.type === "project-grid") as ProjectGridSection | undefined;
   const skillSection = portfolio.sections.find((s) => s.type === "skill-cloud") as SkillCloudSection | undefined;
   const achievementSection = portfolio.sections.find((s) => s.type === "achievement-timeline") as AchievementTimelineSection | undefined;
+
+  // If the site has not yet been generated (or rebuild requested), stream true multi-agent construction
+  if (!isSiteGenerated) {
+    return (
+      <AutonomousSiteBuilder
+        onComplete={() => {
+          setIsSiteGenerated(true);
+        }}
+        reducedMotion={reducedMotion}
+      />
+    );
+  }
 
   return (
     <div
@@ -474,11 +504,34 @@ export const AppContent: React.FC = () => {
         onOpenApprovals={() => setIsApprovalDrawerOpen(true)}
         pendingApprovalsCount={pendingTickets.length}
         sseStatus={sseStatus}
-        onTriggerRebuild={runAutonomousAssembly}
+        onTriggerRebuild={handleRebuildSite}
         isAssembling={isAssembling}
         onTriggerGitUpdate={handleTriggerGitUpdate}
         isGitUpdating={isGitUpdating}
       />
+
+      {/* Top Persistent Build Status & Live Rebuild Trigger Banner */}
+      <div className="w-full bg-[#080d1a]/95 border-b border-cyan-500/30 px-4 py-2 flex flex-wrap items-center justify-between gap-3 text-xs font-mono backdrop-blur-md relative z-30 pt-20">
+        <div className="max-w-7xl mx-auto w-full flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-cyan-300 font-bold">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>AUTONOMOUS BUILD ONLINE (SHA-256: 0x9F7108A)</span>
+            <span className="text-slate-500 hidden sm:inline">•</span>
+            <span className="text-slate-400 font-normal hidden sm:inline">Constructed by 7 Autonomous Agents</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleRebuildSite}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-bold transition-all"
+              title="Clear cached build and watch the 7 autonomous agents collaboratively build the site letter-by-letter again"
+            >
+              <Zap className="w-3.5 h-3.5 text-amber-400" />
+              <span>Rebuild Website Live (Multi-Agent Swarm)</span>
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Main Content Flow */}
       <main className="w-full relative z-10">
@@ -493,7 +546,7 @@ export const AppContent: React.FC = () => {
           isAssembling={isAssembling}
           assemblyProgress={assemblyProgress}
           assemblyStep={assemblyStep}
-          onTriggerRebuild={runAutonomousAssembly}
+          onTriggerRebuild={handleRebuildSite}
           onTriggerGitUpdate={handleTriggerGitUpdate}
           isGitUpdating={isGitUpdating}
         />

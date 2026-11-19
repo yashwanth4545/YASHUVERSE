@@ -8,6 +8,7 @@ export * from "./ml.js";
 export * from "./agent-communication.js";
 export * from "./publishing.js";
 export * from "./agent-execution.js";
+export * from "./site-generation.js";
 
 export type SourceType = "github" | "linkedin" | "document" | "manual";
 
