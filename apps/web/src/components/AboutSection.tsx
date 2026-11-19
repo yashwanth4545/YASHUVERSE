@@ -118,7 +118,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
                     Autonomous Multi-Agent Swarms
                   </div>
                   <p className="text-xs text-slate-400 leading-relaxed">
-                    Deterministic DAG workflow orchestration across 7 isolated specialized agents with blackboard shared memory.
+                    Deterministic DAG workflow orchestration across 12 isolated autonomous engineering agents with shared blackboard memory and sandboxed runtime.
                   </p>
                 </div>
 
@@ -202,7 +202,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div className="p-4 rounded-2xl bg-slate-950/90 border border-white/[0.06] text-center">
-                  <div className="text-2xl sm:text-3xl font-extrabold font-headings text-white">7</div>
+                  <div className="text-2xl sm:text-3xl font-extrabold font-headings text-white">12</div>
                   <div className="text-[10px] font-mono text-cyan-400 uppercase mt-1">Autonomous Agents</div>
                 </div>
 

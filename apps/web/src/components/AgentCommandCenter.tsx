@@ -62,11 +62,14 @@ export const AgentCommandCenter: React.FC<AgentCommandCenterProps> = ({
   };
 
   const dagNodes: AgentId[] = [
+    "orchestrator",
     "source_agent",
     "ml_intelligence",
     "project_agent",
     "verification_agent",
     "content_agent",
+    "design_agent",
+    "publishing_agent",
     "security_agent",
     "quality_agent",
   ];
@@ -113,7 +116,7 @@ export const AgentCommandCenter: React.FC<AgentCommandCenterProps> = ({
         {/* Tab Navigation */}
         <div className="px-6 pt-3 border-b border-white/10 flex items-center gap-2 overflow-x-auto bg-slate-950/90">
           {[
-            { id: "fleet", label: "Agent Fleet (7)", icon: Layers },
+            { id: "fleet", label: "Agent Fleet", icon: Layers },
             { id: "dag", label: "Orchestration DAG", icon: GitBranch },
             { id: "blackboard", label: "Shared Blackboard", icon: Database },
             { id: "audit", label: "Audit Ledger", icon: Terminal },

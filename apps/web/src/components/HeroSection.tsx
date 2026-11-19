@@ -96,7 +96,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             <div className="flex items-center justify-between text-xs font-mono mb-2">
               <div className="flex items-center gap-2 text-cyan-300 font-bold">
                 <Zap className="w-4 h-4 text-cyan-400 animate-bounce" />
-                <span>7 AGENTS ACTIVELY DESIGNING PORTFOLIO LIVE...</span>
+                <span>12 AGENTS ACTIVELY DESIGNING & SYNTHESIZING ECOSYSTEM LIVE...</span>
               </div>
               <span className="text-white font-bold">{assemblyProgress}%</span>
             </div>
@@ -230,8 +230,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   <Cpu className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="text-base font-bold text-white font-headings">7 Agents</div>
-                  <div className="text-[10px] text-cyan-300 font-mono">Specialized Fleet</div>
+                  <div className="text-base font-bold text-white font-headings">12 Agents</div>
+                  <div className="text-[10px] text-cyan-300 font-mono">Autonomous Fleet</div>
                 </div>
               </div>
 

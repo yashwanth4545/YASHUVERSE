@@ -61,6 +61,10 @@ class EventBus {
   public getHistory() {
     return this.eventHistory;
   }
+
+  public activeClientsCount(): number {
+    return this.clients.size;
+  }
 }
 
 export const eventBus = new EventBus();

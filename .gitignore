@@ -29,6 +29,8 @@ node_modules/
 dist/
 build/
 .cache/
+.sandboxes/
+apps/api/.sandboxes/
 
 # Environment files
 .env

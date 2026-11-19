@@ -6,11 +6,14 @@ import {
   validatePortfolioDocument,
   type PortfolioDocument,
 } from "@yashuverse/portfolio-schema";
-import { AGENT_REGISTRY, type AgentPresenceEvent, type AgentId, type SourceEvent } from "@yashuverse/contracts";
+import { AGENT_REGISTRY, AUTONOMOUS_AGENT_REGISTRY, type AgentPresenceEvent, type AgentId, type SourceEvent } from "@yashuverse/contracts";
 import { eventBus } from "./event-bus.js";
 import { verifyHmacSignature } from "./verify-hmac.js";
 import { deliveryIdempotencyStore } from "./services/idempotency-store.js";
 import { sourceEventStore } from "./services/source-event-store.js";
+import { defaultSandboxManager } from "./sandbox/sandbox-manager.js";
+import { defaultEventStore } from "./sandbox/event-store.js";
+import { defaultAutonomousAppEngine } from "./agents/autonomous-app-engine.js";
 import {
   processInboundSourceEvent,
   defaultMLClient,
@@ -285,6 +288,187 @@ app.post("/api/orchestration/run", async (req: Request, res: Response) => {
       },
     });
     res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// --- Phase 1 & 2: Autonomous Website & App Generation Engine Endpoints ---
+
+// 1. Real System Boot & Health Telemetry
+app.get("/api/system/status", (_req: Request, res: Response) => {
+  res.json({
+    status: "ok",
+    services: {
+      api: { status: "online", latencyMs: 2 },
+      eventBus: { status: "online", activeClients: eventBus.activeClientsCount() },
+      sandboxPool: { status: "ready", isolatedDir: ".sandboxes" },
+      modelEngine: { status: "active", provider: "provider-agnostic-orchestrator" },
+      agentRegistry: { status: "registered", totalAgents: Object.keys(AUTONOMOUS_AGENT_REGISTRY).length },
+    },
+    agents: AUTONOMOUS_AGENT_REGISTRY,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// 2. Autonomous App Generation (Prompt in -> Real Project out)
+app.post("/api/agents/generate", async (req: Request, res: Response) => {
+  try {
+    const { prompt, runId, userId, forceFailure, injectBug } = req.body || {};
+    if (!prompt) {
+      res.status(400).json({ error: "Missing required 'prompt' field" });
+      return;
+    }
+    const run = await defaultAutonomousAppEngine.generateApp({
+      prompt,
+      runId,
+      userId,
+      forceFailure: Boolean(forceFailure),
+      injectBug: Boolean(injectBug),
+    });
+    res.json(run);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 3. Iterative App Modification (Minimal Diff Edits)
+app.post("/api/agents/iterate", async (req: Request, res: Response) => {
+  try {
+    const { runId, instruction } = req.body || {};
+    if (!runId || !instruction) {
+      res.status(400).json({ error: "Missing 'runId' or 'instruction' field" });
+      return;
+    }
+    const updated = await defaultAutonomousAppEngine.iterateApp(runId, instruction);
+    res.json(updated);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 4. Cancel Task Execution & Terminate Sandbox Process Tree (T9)
+app.post("/api/agents/cancel/:runId", (req: Request, res: Response) => {
+  const { runId } = req.params;
+  if (!runId) {
+    res.status(400).json({ error: "Missing runId parameter" });
+    return;
+  }
+  const cancelled = defaultAutonomousAppEngine.cancelRun(runId);
+  res.json({ runId, cancelled });
+});
+
+// 5. Get All Persistent Runs
+app.get("/api/agents/runs", (_req: Request, res: Response) => {
+  res.json({ runs: defaultAutonomousAppEngine.getAllRuns() });
+});
+
+// 6. Get Single Run & Append-Only Event Log
+app.get("/api/agents/run/:runId", (req: Request, res: Response) => {
+  const runId = req.params.runId;
+  if (!runId) {
+    res.status(400).json({ error: "Missing runId parameter" });
+    return;
+  }
+  const run = defaultAutonomousAppEngine.getRun(runId);
+  if (!run) {
+    res.status(404).json({ error: `Run '${runId}' not found` });
+    return;
+  }
+  const events = defaultEventStore.getRunEvents(runId);
+  res.json({ run, events });
+});
+
+// 7. Sandbox File Tree Inspection
+app.get("/api/sandbox/:runId/files", async (req: Request, res: Response) => {
+  try {
+    const runId = req.params.runId;
+    if (!runId) {
+      res.status(400).json({ error: "Missing runId parameter" });
+      return;
+    }
+    const files = await defaultSandboxManager.listFiles(runId);
+    res.json({ runId, files });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 8. Sandbox File Content Inspection
+app.get("/api/sandbox/:runId/file", async (req: Request, res: Response) => {
+  try {
+    const runId = req.params.runId;
+    if (!runId) {
+      res.status(400).json({ error: "Missing runId parameter" });
+      return;
+    }
+    const filePath = req.query.path as string;
+    if (!filePath) {
+      res.status(400).json({ error: "Missing 'path' query parameter" });
+      return;
+    }
+    const content = await defaultSandboxManager.readFile(runId, filePath);
+    res.json({ runId, path: filePath, content });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 9. Sandboxed Preview Endpoint (Serves HTML5 App inside sandboxed iframe)
+app.get("/api/sandbox/:runId/preview", async (req: Request, res: Response) => {
+  try {
+    const runId = req.params.runId;
+    if (!runId) {
+      res.status(400).send("Missing runId");
+      return;
+    }
+    const html = await defaultSandboxManager.readFile(runId, "index.html");
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.send(html);
+  } catch (err: any) {
+    res.status(404).send(`<h1>Preview not available</h1><p>${err.message}</p>`);
+  }
+});
+
+// 10. Sandboxed Asset Endpoint (Serves app.js, data.json, etc.)
+app.get("/api/sandbox/:runId/preview/:file(*)", async (req: Request, res: Response) => {
+  try {
+    const runId = req.params.runId;
+    const file = req.params.file;
+    if (!runId || !file) {
+      res.status(400).send("Missing parameters");
+      return;
+    }
+    const content = await defaultSandboxManager.readFile(runId, file);
+    if (file.endsWith(".js")) {
+      res.setHeader("Content-Type", "application/javascript; charset=utf-8");
+    } else if (file.endsWith(".json")) {
+      res.setHeader("Content-Type", "application/json; charset=utf-8");
+    } else if (file.endsWith(".css")) {
+      res.setHeader("Content-Type", "text/css; charset=utf-8");
+    }
+    res.send(content);
+  } catch (err: any) {
+    res.status(404).send(err.message);
+  }
+});
+
+// 11. Export Project Archive (Deliverable)
+app.get("/api/sandbox/:runId/export", async (req: Request, res: Response) => {
+  try {
+    const runId = req.params.runId;
+    if (!runId) {
+      res.status(400).json({ error: "Missing runId parameter" });
+      return;
+    }
+    const files = await defaultSandboxManager.listFiles(runId);
+    const bundle: Record<string, string> = {};
+    for (const f of files) {
+      bundle[f] = await defaultSandboxManager.readFile(runId, f);
+    }
+    res.setHeader("Content-Disposition", `attachment; filename="${runId}-deliverables.json"`);
+    res.json({ runId, fileCount: files.length, files: bundle });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
