@@ -9,7 +9,11 @@
   "scripts": {
     "dev:web": "npm run dev --workspace=@yashuverse/web",
     "dev:api": "npm run dev --workspace=@yashuverse/api",
-    "build": "npm run build --workspaces --if-present",
+    "build:packages": "npm run build --workspace=@yashuverse/contracts && npm run build --workspace=@yashuverse/portfolio-schema && npm run build --workspace=@yashuverse/ui",
+    "build:worker": "npm run build --workspace=@yashuverse/worker",
+    "build:api": "npm run build --workspace=@yashuverse/api",
+    "build:web": "npm run build --workspace=@yashuverse/web",
+    "build": "npm run build:packages && npm run build:worker && npm run build:api && npm run build:web",
     "test": "npm run test --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present"
   },
