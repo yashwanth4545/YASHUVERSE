@@ -13,6 +13,12 @@ export * from "./analyzers/repo-metadata.js";
 export * from "./analyzers/readme-analyzer.js";
 export * from "./analyzers/language-detector.js";
 export * from "./analyzers/release-analyzer.js";
+export * from "./agents/security-agent.js";
+export * from "./agents/quality-agent.js";
+export * from "./orchestration/memory-store.js";
+export * from "./orchestration/message-bus.js";
+export * from "./orchestration/execution-logger.js";
+export * from "./orchestration/workflow-orchestrator.js";
 
 export async function processInboundSourceEvent(
   event: SourceEvent

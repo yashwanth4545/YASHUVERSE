@@ -2,6 +2,48 @@
 
 All notable changes to the YASHUVERSE autonomous portfolio engine will be documented in this file.
 
+## [0.4.0] - Phase 4 Advanced Multi-Agent Intelligence System - 2026-11-19
+
+### Added
+- **Multi-Agent Communication Contracts (`packages/contracts/src/agent-communication.ts`)**:
+  - Implemented typed interfaces for `AgentMessage`, `TaskDelegation`, `WorkingMemoryEntry`, `SharedWorkingMemorySnapshot`, `HumanApprovalTicket`, and `ExecutionLogEntry`.
+  - Registered `security_agent` and `quality_agent` in `AGENT_REGISTRY` with distinct styling, roles, and color tokens.
+  - Added role aliases mapping for `research_agent`, `developer_agent`, `ml_agent`, and `portfolio_agent`.
+- **Shared Working Memory Blackboard (`apps/worker/src/orchestration/memory-store.ts`)**:
+  - Versioned working memory store with monotonic version increments and evidence ID provenance.
+  - Per-key lease locking mechanism (`acquireLock`, `releaseLock`) preventing agent race conditions during entity updates.
+  - Point-in-time snapshotting (`createSnapshot`) and state rollback (`rollback`).
+- **Agent Message Broker (`apps/worker/src/orchestration/message-bus.ts`)**:
+  - Direct request-response routing with correlation ID matching and strict timeout guards.
+  - Broadcast and multicast routing across registered agent message handlers.
+- **Execution Logger & Observability (`apps/worker/src/orchestration/execution-logger.ts`)**:
+  - Structured execution logging with trace IDs, span IDs, duration metrics, and log levels (`INFO`, `WARN`, `ERROR`, `AUDIT`).
+  - Workflow performance and error metrics aggregation.
+- **Specialized Security Agent (`apps/worker/src/agents/security-agent.ts`)**:
+  - Scans for AWS access keys, GitHub PATs, private keys, JWTs, and generic passwords.
+  - Neutralizes prompt-injection instruction overrides, malicious embedded script tags, and `javascript:` URIs.
+- **Specialized Quality Agent (`apps/worker/src/agents/quality-agent.ts`)**:
+  - Validates portfolio candidates against `@yashuverse/portfolio-schema`.
+  - Audits evidence reference completeness, detects duplicate skill clusters, and scores quality (0.0 to 1.0).
+- **DAG Workflow Orchestrator & Conflict Resolution (`apps/worker/src/orchestration/workflow-orchestrator.ts`)**:
+  - Multi-agent DAG execution pipeline: Research $\rightarrow$ Security $\rightarrow$ Developer + ML $\rightarrow$ Conflict Resolution $\rightarrow$ Verification $\rightarrow$ Quality $\rightarrow$ Publishing Gate.
+  - Exponential backoff retry engine with random jitter and task timeouts.
+  - Automatic escalation to `HumanApprovalTicket` for confidence scores in review window ($0.75-0.91$) or quality warnings.
+  - Immediate blocking of unverified claims or critical security leaks.
+- **Observability & Human Approval REST API (`apps/api/src/index.ts`)**:
+  - `GET /api/agent/logs`: Filter logs by workflowId, agentId, and level.
+  - `GET /api/agent/memory/:workflowId`: Inspect live working memory blackboards.
+  - `GET /api/approval/queue`: Query pending human review tickets.
+  - `POST /api/approval/:ticketId/decision`: Approve or reject staged publications.
+  - `POST /api/orchestration/run`: Execute automated multi-agent workflow on demand.
+- **Automated Test Suite Expansion**:
+  - Added Agent Communication & Memory unit tests (6 tests).
+  - Added Security and Quality specialized agents tests (8 tests).
+  - Added Workflow Orchestrator DAG & Policy tests (3 tests).
+  - Added 20-concurrent workflow Concurrency & Stress tests (1 test).
+  - Added API Orchestration & Approval tests (4 tests).
+  - Total automated monorepo test suite expanded from 49 to **73 passing tests** (66 TypeScript monorepo + 7 Python ML).
+
 ## [0.3.0] - Phase 3 Custom ML Intelligence Engine - 2026-11-19
 
 ### Added

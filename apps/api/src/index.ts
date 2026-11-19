@@ -11,7 +11,13 @@ import { eventBus } from "./event-bus.js";
 import { verifyHmacSignature } from "./verify-hmac.js";
 import { deliveryIdempotencyStore } from "./services/idempotency-store.js";
 import { sourceEventStore } from "./services/source-event-store.js";
-import { processInboundSourceEvent, defaultMLClient } from "@yashuverse/worker";
+import {
+  processInboundSourceEvent,
+  defaultMLClient,
+  defaultWorkflowOrchestrator,
+  defaultExecutionLogger,
+  defaultSharedMemory,
+} from "@yashuverse/worker";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -143,6 +149,75 @@ app.post("/api/ml/verify", async (req: Request, res: Response) => {
       return;
     }
     const result = await defaultMLClient.verifyClaim(claim, evidence || []);
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// --- Phase 4 Multi-Agent Intelligence Endpoints ---
+
+// 1. Structured Agent Execution Logs & Observability
+app.get("/api/agent/logs", (req: Request, res: Response) => {
+  const { workflowId, agentId, level } = req.query as any;
+  const logs = defaultExecutionLogger.getLogs({ workflowId, agentId, level });
+  res.json({ count: logs.length, logs });
+});
+
+// 2. Shared Working Memory Blackboard Inspection
+app.get("/api/agent/memory/:workflowId", (req: Request, res: Response) => {
+  const { workflowId } = req.params;
+  if (!workflowId) {
+    res.status(400).json({ error: "Missing required workflowId" });
+    return;
+  }
+  const memory = defaultSharedMemory.getAll(workflowId);
+  const snapshot = defaultSharedMemory.createSnapshot(workflowId);
+  res.json({ workflowId, memory, snapshot });
+});
+
+// 3. Human-in-the-Loop Approval Queue
+app.get("/api/approval/queue", (_req: Request, res: Response) => {
+  const pending = defaultWorkflowOrchestrator.getPendingApprovals();
+  res.json({ pendingCount: pending.length, tickets: pending });
+});
+
+app.post("/api/approval/:ticketId/decision", (req: Request, res: Response) => {
+  const { ticketId } = req.params;
+  const { decision, reviewerNotes } = req.body || {};
+  if (!ticketId) {
+    res.status(400).json({ error: "Missing ticketId" });
+    return;
+  }
+  if (decision !== "approved" && decision !== "rejected") {
+    res.status(400).json({ error: "Decision must be 'approved' or 'rejected'" });
+    return;
+  }
+  const ticket = defaultWorkflowOrchestrator.resolveApproval(ticketId, decision, reviewerNotes);
+  if (!ticket) {
+    res.status(404).json({ error: `Ticket ${ticketId} not found` });
+    return;
+  }
+  res.json({ status: "success", ticket });
+});
+
+// 4. Trigger Multi-Agent Workflow
+app.post("/api/orchestration/run", async (req: Request, res: Response) => {
+  try {
+    const { repositoryFullName, eventType, rawPayload } = req.body || {};
+    if (!repositoryFullName) {
+      res.status(400).json({ error: "Missing required repositoryFullName" });
+      return;
+    }
+    const result = await defaultWorkflowOrchestrator.runWorkflow({
+      sourceEvent: {
+        eventId: `evt-man-${Date.now()}`,
+        source: "manual",
+        eventType: eventType || "push",
+        repositoryFullName,
+        rawPayload,
+      },
+    });
     res.json(result);
   } catch (err: any) {
     res.status(500).json({ error: err.message });

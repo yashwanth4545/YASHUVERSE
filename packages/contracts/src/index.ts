@@ -5,6 +5,7 @@
 
 export * from "./github.js";
 export * from "./ml.js";
+export * from "./agent-communication.js";
 
 export type SourceType = "github" | "linkedin" | "document" | "manual";
 
@@ -28,7 +29,9 @@ export type AgentId =
   | "content_agent"
   | "design_agent"
   | "verification_agent"
-  | "publishing_agent";
+  | "publishing_agent"
+  | "security_agent"
+  | "quality_agent";
 
 export type AgentState = "idle" | "queued" | "working" | "completed" | "blocked" | "failed";
 
@@ -184,4 +187,29 @@ export const AGENT_REGISTRY: Record<AgentId, AgentDefinition> = {
     accentBg: "rgba(37, 99, 235, 0.12)",
     description: "Performs checksum verification, writes immutable version records, and atomically switches active pointer.",
   },
+  security_agent: {
+    id: "security_agent",
+    name: "Security Agent",
+    shortRole: "SecOps & Leak Auditor",
+    role: "Scans for credentials, secrets, prompt-injection & untrusted code",
+    color: "#f97316",
+    accentBg: "rgba(249, 115, 22, 0.12)",
+    description: "Audits inbound payloads and generated artifacts for API keys, PATs, injection patterns, and unauthorized mutations.",
+  },
+  quality_agent: {
+    id: "quality_agent",
+    name: "Quality Agent",
+    shortRole: "Schema & Quality Gate",
+    role: "Validates strict schema conformance, link health & fact alignment",
+    color: "#14b8a6",
+    accentBg: "rgba(20, 184, 166, 0.12)",
+    description: "Enforces strict Zod schema compliance, verifies evidence reference integrity, and prevents orphaned claims.",
+  },
+};
+
+export const AGENT_ROLE_ALIASES: Record<string, AgentId> = {
+  research_agent: "source_agent",
+  developer_agent: "project_agent",
+  ml_agent: "ml_intelligence",
+  portfolio_agent: "content_agent",
 };
