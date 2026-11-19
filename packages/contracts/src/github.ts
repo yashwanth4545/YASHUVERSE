@@ -3,6 +3,12 @@
  * Typed contracts for GitHub App events, webhook payloads, and extracted repository artifacts.
  */
 
+import type {
+  MLClassificationResult,
+  MLEntityMatchResult,
+  MLExtractedSkill,
+} from "./ml.js";
+
 export type GitHubWebhookEventType = "repository" | "push" | "release" | "ping";
 
 export interface GitHubEventHeaders {
@@ -61,6 +67,12 @@ export interface NormalizedGitHubArtifact {
   releases: ReleaseArtifact[];
   contentHash: string; // SHA-256
   collectedAt: string;
+  mlEnrichment?: {
+    activityClassification?: MLClassificationResult;
+    embedding?: number[];
+    entityMatch?: MLEntityMatchResult;
+    extractedSkills?: MLExtractedSkill[];
+  };
 }
 
 export type IngestionJobStatus = "queued" | "processing" | "completed" | "failed";

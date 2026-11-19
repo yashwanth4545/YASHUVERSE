@@ -2,6 +2,44 @@
 
 All notable changes to the YASHUVERSE autonomous portfolio engine will be documented in this file.
 
+## [0.3.0] - Phase 3 Custom ML Intelligence Engine - 2026-11-19
+
+### Added
+- **Database Schema & Vector Search (`infra/migrations/003_pgvector_and_entity_embeddings.sql`)**:
+  - Enabled PostgreSQL `vector` extension (`pgvector`).
+  - Added `embedding vector(384)` column to `entities` table with cosine HNSW index (`idx_entities_embedding_hnsw`).
+  - Implemented SQL function `match_entities()` performing fast approximate nearest neighbor similarity matching with cosine distance thresholds.
+- **Semantic Embeddings Engine (`services/ml/embeddings.py`)**:
+  - Deterministic 384-dimensional dense semantic vector generator normalized to the unit hypersphere ($L_2$ norm = 1.0).
+  - Cosine distance computation function matching `pgvector` vector operations.
+- **Calibrated Activity Classifier (`services/ml/classifier.py`)**:
+  - Classifies commits and events into `FEATURE_RELEASE`, `ARCHITECTURE_REFACTOR`, `BUG_FIX`, `DOCUMENTATION`, `EXPERIMENT`.
+  - Implemented Platt-style Sigmoid probability calibration to prevent overconfidence on weak signals.
+- **Entity Resolution & Duplicate Project Matcher (`services/ml/entity_matcher.py`)**:
+  - Hybrid deduplication engine combining exact repository URL matching, 384-d semantic embedding cosine similarity, and technology set Jaccard distance.
+  - Returns explicit decisions: `duplicate_merge` ($\ge 0.88$), `candidate_related` ($0.70-0.87$), or `distinct_entity` ($< 0.70$).
+- **Evidence-Bounded Skills Extractor (`services/ml/skills_extractor.py`)**:
+  - Extracts verified technical competencies strictly grounded by repository language distributions, sanitized README architecture manifests, and GitHub topic tags.
+  - Attaches immutable `evidenceIds` to every extracted skill record.
+- **Evidence-Based Claim Verifier (`services/ml/claim_verifier.py`)**:
+  - Enforces blueprint verification policy: claims without evidence IDs or resolving to unverified IDs are strictly `blocked` (`SUPPRESS_FROM_PUBLIC_PORTFOLIO`).
+  - Restricts extraordinary assertions (e.g. executive titles, awards) requiring cryptographic/release assurance.
+  - Status thresholds: $\ge 0.92$ `verified`, $0.75-0.91$ `review_required`, $< 0.75$ `blocked`.
+- **Model Registry & Zero-Downtime Rollback (`services/ml/model_registry.py`)**:
+  - Registry tracking active and deprecated versions for classifier, embeddings, matcher, skills extractor, and claim verifier.
+  - Safe zero-downtime rollback mechanism with audit timestamps.
+- **ML Integration Client (`apps/worker/src/ml-client.ts`)**:
+  - Resilient HTTP client connecting worker processes to `services/ml` with sub-millisecond deterministic fallback.
+  - Automatic enrichment inside `JobProcessor`: assigns activity classification, semantic embedding, and verified skills to incoming repository events.
+- **ML REST Endpoints & Live Presence Streaming (`apps/api/src/index.ts`)**:
+  - Added `POST /api/ml/classify`, `POST /api/ml/embed`, `POST /api/ml/match`, and `POST /api/ml/verify`.
+  - Inbound webhook processing activates `ml_intelligence` (`#canvas-ml-eval`) and `project_agent` (`#canvas-project-card-0`) with live cursor movement and SSE events.
+- **Test Suite Expansion**:
+  - Added 7 Python ML intelligence unit tests (`services/ml/test_ml_service.py`).
+  - Added 6 TypeScript Worker ML client and pipeline integration tests (`apps/worker/test/ml-client.test.ts`).
+  - Added 5 TypeScript Express API ML endpoints tests (`apps/api/test/ml-api.test.ts`).
+  - Total automated monorepo test suite expanded from 31 to **49 passing tests**.
+
 ## [0.2.0] - Phase 2 GitHub Autonomous Discovery Engine - 2026-11-19
 
 ### Added

@@ -7,6 +7,7 @@ import type { SourceEvent, NormalizedGitHubArtifact, IngestionJob } from "@yashu
 import { defaultJobProcessor } from "./job-processor.js";
 
 export * from "./github-client.js";
+export * from "./ml-client.js";
 export * from "./job-processor.js";
 export * from "./analyzers/repo-metadata.js";
 export * from "./analyzers/readme-analyzer.js";

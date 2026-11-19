@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import type { IngestionJob, NormalizedGitHubArtifact } from "@yashuverse/contracts";
 import { GitHubClient, defaultGitHubClient } from "./github-client.js";
+import { MLClient, defaultMLClient } from "./ml-client.js";
 import { extractRepositoryMetadata } from "./analyzers/repo-metadata.js";
 import { analyzeReadme, decodeReadmeContent } from "./analyzers/readme-analyzer.js";
 import { analyzeLanguages } from "./analyzers/language-detector.js";
@@ -8,9 +9,11 @@ import { analyzeReleases } from "./analyzers/release-analyzer.js";
 
 export class JobProcessor {
   private client: GitHubClient;
+  private mlClient: MLClient;
 
-  constructor(client: GitHubClient = defaultGitHubClient) {
+  constructor(client: GitHubClient = defaultGitHubClient, mlClient: MLClient = defaultMLClient) {
     this.client = client;
+    this.mlClient = mlClient;
   }
 
   public async processJob(job: IngestionJob, rawPayload?: any): Promise<NormalizedGitHubArtifact> {
@@ -76,8 +79,36 @@ export class JobProcessor {
       releases,
     });
     const contentHash = crypto.createHash("sha256").update(contentString).digest("hex");
-
     const entityId = `proj-${repo.toLowerCase().replace(/[^a-z0-9_-]/g, "-")}`;
+
+    // 6. ML Intelligence Layer Enrichment
+    let mlEnrichment: NormalizedGitHubArtifact["mlEnrichment"] = undefined;
+    try {
+      const activityText = `${metadata.name}: ${metadata.description || ""} ${readmeArtifact?.sanitizedSummary || ""}`;
+      const classification = await this.mlClient.classifyActivity(
+        activityText,
+        { eventName: job.eventType },
+        job.deliveryId
+      );
+
+      const embedText = `${metadata.name}: ${metadata.description || ""} Primary: ${languages.primaryLanguage}`;
+      const embeddingRes = await this.mlClient.embedText(embedText);
+
+      const skills = await this.mlClient.extractSkills({
+        metadata,
+        languages,
+        readme: readmeArtifact,
+        evidenceIds: [`ev-repo-${metadata.name.toLowerCase()}`],
+      });
+
+      mlEnrichment = {
+        activityClassification: classification,
+        embedding: embeddingRes.embedding,
+        extractedSkills: skills,
+      };
+    } catch (err: any) {
+      console.warn(`[JobProcessor] ML enrichment deferred: ${err.message}`);
+    }
 
     return {
       entityId,
@@ -87,6 +118,7 @@ export class JobProcessor {
       releases,
       contentHash,
       collectedAt: new Date().toISOString(),
+      mlEnrichment,
     };
   }
 }

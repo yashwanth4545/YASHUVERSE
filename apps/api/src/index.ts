@@ -11,7 +11,7 @@ import { eventBus } from "./event-bus.js";
 import { verifyHmacSignature } from "./verify-hmac.js";
 import { deliveryIdempotencyStore } from "./services/idempotency-store.js";
 import { sourceEventStore } from "./services/source-event-store.js";
-import { processInboundSourceEvent } from "@yashuverse/worker";
+import { processInboundSourceEvent, defaultMLClient } from "@yashuverse/worker";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -90,6 +90,63 @@ app.get("/api/evidence/:id", (req: Request, res: Response) => {
     return;
   }
   res.json(evidence);
+});
+
+// --- ML Intelligence Endpoints ---
+app.post("/api/ml/classify", async (req: Request, res: Response) => {
+  try {
+    const { text, metadata } = req.body || {};
+    if (!text) {
+      res.status(400).json({ error: "Missing required 'text' field" });
+      return;
+    }
+    const result = await defaultMLClient.classifyActivity(text, metadata || {});
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/api/ml/embed", async (req: Request, res: Response) => {
+  try {
+    const { text } = req.body || {};
+    if (!text) {
+      res.status(400).json({ error: "Missing required 'text' field" });
+      return;
+    }
+    const result = await defaultMLClient.embedText(text);
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/api/ml/match", async (req: Request, res: Response) => {
+  try {
+    const { candidate, existingCatalog } = req.body || {};
+    if (!candidate) {
+      res.status(400).json({ error: "Missing required 'candidate' project" });
+      return;
+    }
+    const result = await defaultMLClient.matchEntities(candidate, existingCatalog || []);
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/api/ml/verify", async (req: Request, res: Response) => {
+  try {
+    const { claim, evidence } = req.body || {};
+    if (!claim) {
+      res.status(400).json({ error: "Missing required 'claim' object" });
+      return;
+    }
+    const result = await defaultMLClient.verifyClaim(claim, evidence || []);
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // SSE Stream for Agent Presence and Workflow Events
@@ -486,6 +543,52 @@ app.post("/api/webhooks/github", async (req: any, res: Response) => {
           eventId: `pres-orch-next-${Date.now()}`,
         };
         eventBus.broadcast("agent.presence", orchestratorNext);
+
+        // ML Intelligence Agent evaluates event
+        if (workerResult.result.mlEnrichment?.activityClassification) {
+          const clf = workerResult.result.mlEnrichment.activityClassification;
+          const mlPresence: AgentPresenceEvent = {
+            workflowId,
+            agentId: "ml_intelligence",
+            state: "working",
+            taskLabel: `Classifying repository activity -> ${clf.predictedLabel} (${Math.round(clf.calibratedScore * 100)}% calibrated confidence)`,
+            targetId: "canvas-ml-eval",
+            occurredAt: new Date().toISOString(),
+            eventId: `pres-ml-${Date.now()}`,
+          };
+          eventBus.broadcast("agent.presence", mlPresence);
+          eventBus.broadcast("activity.classified", {
+            workflowId,
+            agentId: "ml_intelligence",
+            type: "activity.classified",
+            payload: clf,
+            occurredAt: new Date().toISOString(),
+            eventId: `evt-ml-${Date.now()}`,
+          });
+        }
+
+        // Project Agent binds canonical entity
+        const projectPresence: AgentPresenceEvent = {
+          workflowId,
+          agentId: "project_agent",
+          state: "working",
+          taskLabel: `Resolved canonical entity ${workerResult.result.entityId} (skills: ${workerResult.result.mlEnrichment?.extractedSkills?.length || 0})`,
+          targetId: "canvas-project-card-0",
+          occurredAt: new Date().toISOString(),
+          eventId: `pres-proj-${Date.now()}`,
+        };
+        eventBus.broadcast("agent.presence", projectPresence);
+        eventBus.broadcast("entity.matched", {
+          workflowId,
+          agentId: "project_agent",
+          type: "entity.matched",
+          payload: {
+            entityId: workerResult.result.entityId,
+            skills: workerResult.result.mlEnrichment?.extractedSkills || [],
+          },
+          occurredAt: new Date().toISOString(),
+          eventId: `evt-ent-${Date.now()}`,
+        });
       } else {
         throw new Error(workerResult.error || "Worker processing returned failure");
       }
