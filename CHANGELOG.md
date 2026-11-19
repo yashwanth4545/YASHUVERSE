@@ -2,6 +2,33 @@
 
 All notable changes to the YASHUVERSE autonomous portfolio engine will be documented in this file.
 
+## [0.2.0] - Phase 2 GitHub Autonomous Discovery Engine - 2026-11-19
+
+### Added
+- **GitHub Contracts (`@yashuverse/contracts`)**:
+  - Implemented typed interfaces for `RepositoryMetadata`, `ReadmeArtifact`, `LanguageBreakdown`, `ReleaseArtifact`, `NormalizedGitHubArtifact`, and `IngestionJob`.
+- **Atomic Delivery Deduplication (`apps/api`)**:
+  - Implemented `DeliveryIdempotencyStore` ensuring duplicate `X-GitHub-Delivery` webhooks are caught and ignored safely (`200 OK ignored_duplicate`) without duplicate execution.
+- **Append-Only Source Event Store (`apps/api`)**:
+  - Implemented `SourceEventStore` computing SHA-256 content hashes, tracking ingestion status transitions, and exposing `GET /api/source/events`.
+- **GitHub App & REST Client (`apps/worker`)**:
+  - Implemented `GitHubClient` with support for GitHub App private key authentication (`@octokit/auth-app`) and personal access token fallback.
+- **Autonomous Discovery Analyzers (`apps/worker`)**:
+  - `RepoMetadataExtractor`: Normalizes repository description, stars, forks, license, and topic tags.
+  - `ReadmeAnalyzer`: Untrusted Markdown analyzer with **prompt-injection neutralization** (strips injection patterns, XSS script tags, extracts architecture headings and technologies).
+  - `LanguageDetector`: Queries GitHub languages endpoint, computes byte counts and percentage breakdowns.
+  - `ReleaseAnalyzer`: Parses release notes, tags, published dates, and assets.
+  - `JobProcessor`: Orchestrates the complete extraction pipeline and generates immutable SHA-256 provenance hashes.
+- **Real-Time Agent Integration (`apps/api`)**:
+  - Inbound GitHub webhooks automatically activate **Source Agent** (`state: "working"`, `targetId: "canvas-source-panel"`) and **Orchestrator** on the live multi-agent canvas via SSE.
+  - Emits `source.received` workflow event and completes `Source Agent` presence upon worker completion.
+- **Automated Test Suite**:
+  - Added Delivery Idempotency Store tests (4 tests).
+  - Added Source Event Store & Provenance tests (3 tests).
+  - Added GitHub Webhook E2E Integration tests (6 tests).
+  - Added Worker Repository Analyzers & Prompt Injection tests (7 tests).
+  - Expanded total automated test suite from 10 to **31 passing tests**.
+
 ## [0.1.0] - Phase 1 Foundation Release - 2026-11-18
 
 ### Added

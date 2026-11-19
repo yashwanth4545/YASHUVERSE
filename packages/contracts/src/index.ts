@@ -3,6 +3,8 @@
  * Master event contracts, presence definitions, and workflow types for YASHUVERSE
  */
 
+export * from "./github.js";
+
 export type SourceType = "github" | "linkedin" | "document" | "manual";
 
 export interface SourceEvent {

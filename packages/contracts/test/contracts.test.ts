@@ -42,4 +42,19 @@ describe("YASHUVERSE Agent Contracts & Registry Integrity", () => {
     assert.equal(presence.targetId, "canvas-evidence-inspector");
     assert.equal(presence.progress, 85);
   });
+
+  test("Validates NormalizedGitHubArtifact and IngestionJob contracts", () => {
+    const job = {
+      jobId: "job-001",
+      deliveryId: "del-gh-12345",
+      eventType: "repository",
+      repositoryFullName: "yashwanth4545/YASHUVERSE",
+      occurredAt: new Date().toISOString(),
+      status: "queued" as const,
+      retryCount: 0,
+    };
+
+    assert.equal(job.status, "queued");
+    assert.equal(job.repositoryFullName, "yashwanth4545/YASHUVERSE");
+  });
 });

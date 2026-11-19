@@ -6,9 +6,12 @@ import {
   validatePortfolioDocument,
   type PortfolioDocument,
 } from "@yashuverse/portfolio-schema";
-import { AGENT_REGISTRY, type AgentPresenceEvent, type AgentId } from "@yashuverse/contracts";
+import { AGENT_REGISTRY, type AgentPresenceEvent, type AgentId, type SourceEvent } from "@yashuverse/contracts";
 import { eventBus } from "./event-bus.js";
 import { verifyHmacSignature } from "./verify-hmac.js";
+import { deliveryIdempotencyStore } from "./services/idempotency-store.js";
+import { sourceEventStore } from "./services/source-event-store.js";
+import { processInboundSourceEvent } from "@yashuverse/worker";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -318,14 +321,23 @@ app.post("/api/demo/run", async (_req: Request, res: Response) => {
   }
 });
 
-// GitHub Webhook Ingestion (Signature Verification Skeleton for Phase 2)
-app.post("/api/webhooks/github", (req: any, res: Response) => {
+// Recent Source Ingestion Events Log
+app.get("/api/source/events", (_req: Request, res: Response) => {
+  res.json({
+    totalEvents: sourceEventStore.listRecent().length,
+    events: sourceEventStore.listRecent(50),
+  });
+});
+
+// GitHub Webhook Ingestion & Autonomous Discovery Gate
+app.post("/api/webhooks/github", async (req: any, res: Response) => {
   const signature = req.headers["x-hub-signature-256"] as string | undefined;
   const deliveryId = req.headers["x-github-delivery"] as string | undefined;
-  const eventName = req.headers["x-github-event"] as string | undefined;
+  const eventName = (req.headers["x-github-event"] as string | undefined) || "unknown";
 
   const webhookSecret = process.env.GITHUB_WEBHOOK_SECRET || "dev-secret-key-32-chars-minimum";
 
+  // 1. Signature Verification
   if (!signature) {
     res.status(401).json({ error: "Missing X-Hub-Signature-256 header" });
     return;
@@ -336,19 +348,163 @@ app.post("/api/webhooks/github", (req: any, res: Response) => {
     return;
   }
 
-  // HMAC-SHA256 calculation over raw request body with constant-time comparison
   const rawBody = req.rawBody || Buffer.from(JSON.stringify(req.body));
   if (!verifyHmacSignature(rawBody, signature, webhookSecret)) {
     res.status(401).json({ error: "Invalid webhook signature" });
     return;
   }
 
-  // Idempotency check: in Phase 2 this checks source_events table
+  // 2. Ping Event Handling
+  if (eventName === "ping") {
+    res.status(200).json({ status: "pong", zen: req.body?.zen, hookId: req.body?.hook_id });
+    return;
+  }
+
+  // 3. Delivery Deduplication (Idempotency Check)
+  const isFresh = deliveryIdempotencyStore.claim(deliveryId);
+  if (!isFresh) {
+    res.status(200).json({
+      status: "ignored_duplicate",
+      deliveryId,
+      note: "Delivery ID already processed; duplicate webhook safely ignored",
+    });
+    return;
+  }
+
+  // 4. Extract repository metadata & actor
+  const body = req.body || {};
+  const repository = body.repository || {};
+  const repoFullName = repository.full_name || repository.name || "unknown-repository";
+  const repoUrl = repository.html_url || (repoFullName !== "unknown-repository" ? `https://github.com/${repoFullName}` : undefined);
+  const actorName = body.sender?.login || body.pusher?.name || "github-actions";
+
+  // 5. Construct Normalized SourceEvent
+  const sourceEvent: SourceEvent = {
+    eventId: deliveryId,
+    source: "github",
+    sourceUrl: repoUrl,
+    eventType: eventName,
+    actor: actorName,
+    occurredAt: new Date().toISOString(),
+    content: `GitHub ${eventName} event detected on ${repoFullName}`,
+    metadata: {
+      repositoryFullName: repoFullName,
+      deliveryId,
+      eventName,
+      action: body.action,
+      ref: body.ref,
+      commitCount: Array.isArray(body.commits) ? body.commits.length : 0,
+      rawPayload: body,
+    },
+  };
+
+  // 6. Record in immutable source event store
+  sourceEventStore.recordEvent(deliveryId, eventName, body, sourceEvent, actorName, repoUrl);
+
+  const workflowId = `wf-gh-${deliveryId.substring(0, 8)}`;
+
+  // 7. Emit Real-Time Agent Collaboration Events to Web Clients (SSE)
+  // Source Agent begins working on canvas
+  const sourceAgentWorking: AgentPresenceEvent = {
+    workflowId,
+    agentId: "source_agent",
+    state: "working",
+    taskLabel: `Ingesting GitHub ${eventName} for ${repoFullName} (Delivery: ${deliveryId.substring(0, 8)})`,
+    targetId: "canvas-source-panel",
+    occurredAt: new Date().toISOString(),
+    eventId: `pres-gh-${deliveryId}`,
+  };
+  eventBus.broadcast("agent.presence", sourceAgentWorking);
+
+  const orchestratorWorking: AgentPresenceEvent = {
+    workflowId,
+    agentId: "orchestrator",
+    state: "working",
+    taskLabel: `Autonomous DAG triggered for repo: ${repoFullName}`,
+    targetId: "canvas-task-graph",
+    occurredAt: new Date().toISOString(),
+    eventId: `pres-orch-${deliveryId}`,
+  };
+  eventBus.broadcast("agent.presence", orchestratorWorking);
+
+  // 8. Respond Promptly with 202 Accepted (Processing runs asynchronously in worker)
   res.status(202).json({
     status: "accepted",
     deliveryId,
     event: eventName,
-    note: "Signature verified; queued for asynchronous worker processing",
+    repository: repoFullName,
+    workflowId,
+    note: "Signature verified & delivery claimed; dispatched to autonomous background worker",
+  });
+
+  // 9. Asynchronous Background Worker Processing
+  setImmediate(async () => {
+    try {
+      sourceEventStore.updateStatus(deliveryId, "processing");
+      const workerResult = await processInboundSourceEvent(sourceEvent);
+
+      if (workerResult.success && workerResult.result) {
+        sourceEventStore.updateStatus(deliveryId, "processed");
+        deliveryIdempotencyStore.markProcessed(deliveryId);
+
+        // Emit source.received workflow event
+        eventBus.broadcast("source.received", {
+          workflowId,
+          type: "source.received",
+          agentId: "source_agent",
+          payload: {
+            deliveryId,
+            repository: repoFullName,
+            languages: workerResult.result.languages,
+            releases: workerResult.result.releases,
+            contentHash: workerResult.result.contentHash,
+          },
+          occurredAt: new Date().toISOString(),
+          eventId: `evt-src-${Date.now()}`,
+        });
+
+        // Source Agent completes task and docks
+        const sourceAgentDone: AgentPresenceEvent = {
+          workflowId,
+          agentId: "source_agent",
+          state: "completed",
+          taskLabel: `Repository ${repoFullName} normalized (Hash: ${workerResult.result.contentHash.substring(0, 8)})`,
+          targetId: "canvas-source-panel",
+          occurredAt: new Date().toISOString(),
+          eventId: `pres-src-done-${Date.now()}`,
+        };
+        eventBus.broadcast("agent.presence", sourceAgentDone);
+
+        // Orchestrator schedules next DAG stage (ML Intelligence & Project discovery)
+        const orchestratorNext: AgentPresenceEvent = {
+          workflowId,
+          agentId: "orchestrator",
+          state: "working",
+          taskLabel: `Dispatched discovery output of ${repoFullName} to ML Intelligence DAG`,
+          targetId: "canvas-task-graph",
+          occurredAt: new Date().toISOString(),
+          eventId: `pres-orch-next-${Date.now()}`,
+        };
+        eventBus.broadcast("agent.presence", orchestratorNext);
+      } else {
+        throw new Error(workerResult.error || "Worker processing returned failure");
+      }
+    } catch (err: any) {
+      console.error(`[Webhook Async Worker] Error processing delivery ${deliveryId}:`, err);
+      sourceEventStore.updateStatus(deliveryId, "failed", err.message);
+
+      const sourceAgentFailed: AgentPresenceEvent = {
+        workflowId,
+        agentId: "source_agent",
+        state: "failed",
+        taskLabel: `Ingestion failed: ${err.message}`,
+        targetId: "canvas-source-panel",
+        occurredAt: new Date().toISOString(),
+        eventId: `pres-src-fail-${Date.now()}`,
+      };
+      eventBus.broadcast("agent.presence", sourceAgentFailed);
+      eventBus.broadcast("agent.task.failed", { workflowId, deliveryId, error: err.message });
+    }
   });
 });
 
