@@ -5,44 +5,65 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    color-scheme: light;
   }
   body {
     background-color: #f8fafc;
     color: #0f172a;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+    letter-spacing: -0.025em;
   }
 }
 
-/* Glassmorphism surfaces conforming to Apple-minimal aesthetic */
+/* Apple-Inspired Luxury Glassmorphism & Metallic Surfaces */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.78);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.76);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(226, 232, 240, 0.85);
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 4px 24px -2px rgba(15, 23, 42, 0.04);
+}
+
+.glass-panel-elevated {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 16px 40px -8px rgba(15, 23, 42, 0.08), 0 1px 2px 0 rgba(0, 0, 0, 0.02);
 }
 
 .glass-panel-hover {
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-panel-hover:hover {
-  background: rgba(255, 255, 255, 0.92);
-  border-color: rgba(0, 102, 255, 0.3);
-  box-shadow: 0 12px 32px -4px rgba(0, 102, 255, 0.08);
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(0, 102, 255, 0.35);
+  box-shadow: 0 16px 48px -4px rgba(0, 102, 255, 0.10);
   transform: translateY(-2px);
 }
 
-/* Restrained glow effect */
+/* Metallic Edge Highlight */
+.metallic-card {
+  position: relative;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(248, 250, 252, 0.82) 100%);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* Subtle Electric and Cyan Glows */
 .glow-electric {
-  box-shadow: 0 0 25px rgba(0, 102, 255, 0.15);
+  box-shadow: 0 0 28px rgba(0, 102, 255, 0.16);
 }
 
-.glow-active {
-  box-shadow: 0 0 35px rgba(0, 102, 255, 0.25);
+.glow-cyan {
+  box-shadow: 0 0 28px rgba(0, 216, 255, 0.18);
 }
 
-/* In-app agent cursor smooth interpolation */
+/* In-App Autonomous Agent Cursors */
 .agent-cursor {
   pointer-events: none;
   z-index: 9999;
@@ -55,4 +76,23 @@
   .agent-cursor {
     transition: none !important;
   }
+}
+
+/* Custom Minimalist Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.55);
 }

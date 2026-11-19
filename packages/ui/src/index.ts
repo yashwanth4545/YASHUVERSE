@@ -1,33 +1,44 @@
 /**
  * @yashuverse/ui
  * Design tokens, constants, and theme utilities for YASHUVERSE
- * Visual direction: White, silver, electric blue; Apple-inspired minimalism;
- * premium typography; whitespace; restrained glow; frosted glass surfaces.
+ * Visual direction: Apple-inspired minimalism; White, silver, metallic chrome, and electric blue;
+ * premium typography (Manrope, Inter, Space Grotesk, JetBrains Mono);
+ * sophisticated glassmorphism; cinematic studio lighting; restrained glow.
  */
 
 export const THEME = {
   colors: {
     bgCanvas: "#f8fafc",
     bgCard: "rgba(255, 255, 255, 0.85)",
-    bgGlass: "rgba(255, 255, 255, 0.70)",
+    bgGlass: "rgba(255, 255, 255, 0.72)",
+    bgChrome: "linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(241,245,249,0.85) 50%, rgba(226,232,240,0.9) 100%)",
     borderSubtle: "rgba(226, 232, 240, 0.8)",
+    borderGlass: "rgba(255, 255, 255, 0.6)",
     borderElectric: "rgba(0, 102, 255, 0.4)",
     electricBlue: "#0066FF",
-    electricBlueGlow: "rgba(0, 102, 255, 0.15)",
-    cyanGlow: "rgba(6, 182, 212, 0.15)",
+    electricBlueHover: "#0052CC",
+    electricBlueGlow: "rgba(0, 102, 255, 0.18)",
+    cyanAccent: "#00D8FF",
+    cyanGlow: "rgba(0, 216, 255, 0.16)",
+    silverMuted: "#64748B",
+    silverLight: "#F1F5F9",
+    platinumBorder: "#E2E8F0",
     textPrimary: "#0f172a",
     textSecondary: "#475569",
     textMuted: "#94a3b8",
   },
   typography: {
-    fontFamilySans:
-      "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-    fontFamilyMono: "SF Mono, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+    fontHeadings: "'Manrope', -apple-system, BlinkMacSystemFont, sans-serif",
+    fontBody: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+    fontTech: "'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif",
+    fontMono: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace",
   },
   shadows: {
     glass: "0 8px 32px 0 rgba(0, 0, 0, 0.05)",
+    glassHover: "0 16px 40px -4px rgba(0, 102, 255, 0.08)",
     glow: "0 0 25px rgba(0, 102, 255, 0.25)",
     glowSubtle: "0 0 15px rgba(0, 102, 255, 0.12)",
+    metallic: "0 2px 10px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.8)",
   },
 };
 
@@ -85,5 +96,17 @@ export const AGENT_COLOR_MAP: Record<string, { bg: string; text: string; border:
     text: "#1d4ed8",
     border: "#2563eb",
     glow: "rgba(37, 99, 235, 0.3)",
+  },
+  security_agent: {
+    bg: "rgba(249, 115, 22, 0.10)",
+    text: "#ea580c",
+    border: "#f97316",
+    glow: "rgba(249, 115, 22, 0.3)",
+  },
+  quality_agent: {
+    bg: "rgba(20, 184, 166, 0.10)",
+    text: "#0d9488",
+    border: "#14b8a6",
+    glow: "rgba(20, 184, 166, 0.3)",
   },
 };
