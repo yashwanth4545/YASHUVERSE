@@ -434,46 +434,46 @@ export const AICore3D: React.FC<AICore3DProps> = ({
   const activeAgentDef = activeAgentId ? AGENT_REGISTRY[activeAgentId] : null;
 
   return (
-    <div className="relative w-full h-[440px] md:h-[540px] flex items-center justify-center select-none overflow-hidden rounded-3xl bg-gradient-to-b from-white/80 via-slate-50/90 to-white/80 border border-slate-200/90 shadow-glass-elevated">
+    <div className="relative w-full h-[440px] md:h-[540px] flex items-center justify-center select-none overflow-hidden rounded-3xl bg-gradient-to-b from-slate-950 via-[#090e1c] to-slate-950 border border-white/15 shadow-liquid-card">
       {/* Three.js Canvas Container */}
       <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing z-10" />
 
       {/* Luxury Metallic Radial Glow Aura */}
-      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-500/10 via-cyan-400/5 to-transparent blur-3xl" />
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-600/25 via-cyan-400/15 to-transparent blur-3xl" />
 
-      {/* Precision Apple-Style Subtle Holographic Grid */}
+      {/* Subtle Holographic Grid */}
       <div
-        className="absolute inset-0 pointer-events-none opacity-30"
+        className="absolute inset-0 pointer-events-none opacity-20"
         style={{
           backgroundImage:
-            "linear-gradient(rgba(148,163,184,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.12) 1px, transparent 1px)",
+            "linear-gradient(rgba(0,240,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(0,240,255,0.2) 1px, transparent 1px)",
           backgroundSize: "40px 40px",
         }}
       />
 
       {/* Top Left: System Telemetry Indicator */}
-      <div className="absolute top-4 left-4 z-20 flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl bg-white/90 backdrop-blur-md border border-slate-200 shadow-sm text-xs font-tech text-slate-800">
-        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-        <span className="font-semibold tracking-wide">YASHUVERSE 3D CORE</span>
-        <span className="text-slate-400">•</span>
-        <span className="text-blue-600 font-mono text-[11px]">7 AGENTS ACTIVE</span>
+      <div className="absolute top-4 left-4 z-20 flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl bg-slate-900/90 backdrop-blur-md border border-cyan-400/40 shadow-liquid-glow text-xs font-tech text-white">
+        <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_#00F0FF]" />
+        <span className="font-bold tracking-wide">YASHUVERSE 3D CORE</span>
+        <span className="text-slate-500">•</span>
+        <span className="text-cyan-300 font-mono text-[11px]">7 AGENTS ACTIVE</span>
       </div>
 
       {/* Top Right: Architecture Badge */}
-      <div className="absolute top-4 right-4 z-20 hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/90 backdrop-blur-md border border-slate-200 shadow-sm text-xs font-mono text-slate-600">
-        <Zap className="w-3.5 h-3.5 text-amber-500" />
+      <div className="absolute top-4 right-4 z-20 hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-900/90 backdrop-blur-md border border-white/15 text-xs font-mono text-slate-300">
+        <Zap className="w-3.5 h-3.5 text-amber-400" />
         <span>PBR METALLIC ENGINE</span>
       </div>
 
       {/* Active Agent Telemetry Tag */}
       {activeAgentDef && (
-        <div className="absolute top-16 left-4 z-20 flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/95 backdrop-blur-md border border-blue-500/50 text-xs shadow-glow-subtle animate-fade-in">
+        <div className="absolute top-16 left-4 z-20 flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-900/95 backdrop-blur-md border border-cyan-400/60 text-xs shadow-liquid-glow animate-fade-in text-white">
           <span
             className="w-2 h-2 rounded-full animate-ping"
             style={{ backgroundColor: activeAgentDef.color }}
           />
-          <span className="font-bold text-slate-900">{activeAgentDef.name}</span>
-          <span className="text-[10px] font-mono text-slate-500 truncate max-w-[200px]">
+          <span className="font-bold text-white">{activeAgentDef.name}</span>
+          <span className="text-[10px] font-mono text-cyan-300 truncate max-w-[200px]">
             {activeAgentDef.shortRole}
           </span>
         </div>
@@ -481,7 +481,7 @@ export const AICore3D: React.FC<AICore3DProps> = ({
 
       {/* Bottom Floating Interactive Agent Nodes Dock */}
       <div className="absolute bottom-4 inset-x-4 z-20 flex items-center justify-center">
-        <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-white/85 backdrop-blur-xl border border-slate-200/90 shadow-glass overflow-x-auto max-w-full">
+        <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-slate-950/90 backdrop-blur-xl border border-white/15 shadow-2xl overflow-x-auto max-w-full">
           {[
             "source_agent",
             "project_agent",
@@ -506,8 +506,8 @@ export const AICore3D: React.FC<AICore3DProps> = ({
                 onClick={() => onSelectAgent?.(agentId)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-tech transition-all duration-200 whitespace-nowrap ${
                   isSelected || isHovered
-                    ? "bg-slate-900 text-white shadow-sm ring-1 ring-slate-800"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/80"
+                    ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-liquid-glow font-bold"
+                    : "text-slate-400 hover:text-white hover:bg-white/5"
                 }`}
                 title={def.role}
               >

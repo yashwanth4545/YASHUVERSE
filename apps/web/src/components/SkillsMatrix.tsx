@@ -21,18 +21,18 @@ export const SkillsMatrix: React.FC<SkillsMatrixProps> = ({
   onInspectEvidence,
 }) => {
   return (
-    <section id="skills" className="py-16 md:py-24 border-t border-slate-200/80 scroll-mt-20">
+    <section id="skills" className="py-16 md:py-24 border-t border-white/10 scroll-mt-20 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/60 text-blue-700 text-xs font-tech font-semibold mb-3">
-            <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-950/80 border border-cyan-400/40 text-cyan-300 text-xs font-tech font-bold mb-3 shadow-liquid-card">
+            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
             EVIDENCE-BOUNDED COMPETENCIES
           </div>
-          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 font-headings">
+          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white font-headings">
             Skills & Verified Milestones
           </h2>
-          <p className="text-sm sm:text-base text-slate-500 font-body mt-1 max-w-2xl">
+          <p className="text-sm sm:text-base text-slate-400 font-body mt-2 max-w-2xl leading-relaxed">
             Technical skills and verified achievements backed by repository commits, benchmark evaluations, and cryptographic audit hashes.
           </p>
         </div>
@@ -43,12 +43,12 @@ export const SkillsMatrix: React.FC<SkillsMatrixProps> = ({
             {skillsSection.groups.map((group) => (
               <div
                 key={group.category}
-                className="glass-panel rounded-3xl p-6 border border-slate-200/80 shadow-glass flex flex-col justify-between"
+                className="glass-panel rounded-3xl p-6 border border-white/10 shadow-glass flex flex-col justify-between"
               >
                 <div>
-                  <div className="flex items-center gap-2.5 mb-5 pb-3 border-b border-slate-100">
-                    <Layers className="w-4 h-4 text-blue-600 shrink-0" />
-                    <h3 className="text-sm font-bold text-slate-900 font-headings">
+                  <div className="flex items-center gap-2.5 mb-5 pb-3 border-b border-white/10">
+                    <Layers className="w-4 h-4 text-cyan-400 shrink-0" />
+                    <h3 className="text-base font-bold text-white font-headings">
                       {group.category}
                     </h3>
                   </div>
@@ -57,9 +57,9 @@ export const SkillsMatrix: React.FC<SkillsMatrixProps> = ({
                     {group.skills.map((skill) => (
                       <div
                         key={skill.name}
-                        className="flex items-center justify-between p-2.5 rounded-xl bg-white/90 border border-slate-200/70 hover:border-blue-400/50 transition-colors shadow-xs"
+                        className="flex items-center justify-between p-3 rounded-2xl bg-slate-950/70 border border-white/10 hover:border-cyan-400/50 transition-colors shadow-xs"
                       >
-                        <span className="text-xs font-medium text-slate-800 font-tech">
+                        <span className="text-xs font-semibold text-slate-200 font-tech">
                           {skill.name}
                         </span>
 
@@ -68,12 +68,12 @@ export const SkillsMatrix: React.FC<SkillsMatrixProps> = ({
                             {skill.evidenceCount} ev
                           </span>
                           <span
-                            className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                               skill.level === "Specialized"
-                                ? "bg-blue-50 text-blue-700 border border-blue-200"
+                                ? "bg-blue-900/60 text-cyan-300 border border-cyan-400/50"
                                 : skill.level === "Advanced"
-                                ? "bg-slate-100 text-slate-700 border border-slate-200"
-                                : "bg-slate-50 text-slate-600"
+                                ? "bg-purple-900/50 text-purple-300 border border-purple-400/40"
+                                : "bg-slate-800 text-slate-300 border border-white/10"
                             }`}
                           >
                             {skill.level}
@@ -84,9 +84,9 @@ export const SkillsMatrix: React.FC<SkillsMatrixProps> = ({
                   </div>
                 </div>
 
-                <div className="pt-4 mt-6 border-t border-slate-100 flex items-center justify-between text-[11px] font-mono text-slate-400">
-                  <span>ML Extracted & Verified</span>
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                <div className="pt-4 mt-6 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-cyan-400/80">
+                  <span>ML Extracted & Proven</span>
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
                 </div>
               </div>
             ))}
@@ -98,11 +98,11 @@ export const SkillsMatrix: React.FC<SkillsMatrixProps> = ({
           <div>
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="text-xl font-bold text-slate-900 font-headings">
+                <h3 className="text-2xl font-bold text-white font-headings">
                   {achievementsSection.title}
                 </h3>
                 {achievementsSection.subtitle && (
-                  <p className="text-xs text-slate-500 font-body mt-0.5">
+                  <p className="text-xs text-slate-400 font-body mt-0.5">
                     {achievementsSection.subtitle}
                   </p>
                 )}
@@ -113,40 +113,40 @@ export const SkillsMatrix: React.FC<SkillsMatrixProps> = ({
               {achievementsSection.items.map((item) => (
                 <div
                   key={item.id}
-                  className="glass-panel rounded-2xl p-5 border border-slate-200/80 shadow-glass flex flex-col justify-between"
+                  className="glass-panel rounded-3xl p-6 border border-white/10 shadow-glass flex flex-col justify-between"
                 >
                   <div>
                     <div className="flex items-start justify-between gap-3 mb-2">
                       <div className="flex items-center gap-3">
-                        <div className="p-2.5 rounded-xl bg-amber-50 text-amber-600 border border-amber-200 shrink-0">
-                          <Award className="w-4 h-4" />
+                        <div className="p-3 rounded-2xl bg-amber-950/60 text-amber-400 border border-amber-400/40 shrink-0">
+                          <Award className="w-5 h-5" />
                         </div>
                         <div>
-                          <h4 className="text-sm font-bold text-slate-900 font-headings">
+                          <h4 className="text-base font-bold text-white font-headings">
                             {item.title}
                           </h4>
-                          <span className="text-xs text-slate-500 font-tech">{item.issuer}</span>
+                          <span className="text-xs text-cyan-300 font-tech">{item.issuer}</span>
                         </div>
                       </div>
 
                       <span className="text-[11px] font-mono text-slate-400 flex items-center gap-1 shrink-0">
-                        <Calendar className="w-3 h-3" />
+                        <Calendar className="w-3.5 h-3.5" />
                         {item.date}
                       </span>
                     </div>
 
-                    <p className="text-xs text-slate-600 font-body mt-2 leading-relaxed">
+                    <p className="text-xs text-slate-300 font-body mt-3 leading-relaxed">
                       {item.description}
                     </p>
                   </div>
 
-                  <div className="pt-3 mt-4 border-t border-slate-100 flex items-center justify-between text-xs font-tech">
+                  <div className="pt-4 mt-4 border-t border-white/10 flex items-center justify-between text-xs font-tech">
                     <button
                       type="button"
                       onClick={() => onInspectEvidence(item.evidenceIds[0] || "")}
-                      className="text-[11px] font-mono text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded-lg border border-emerald-200 flex items-center gap-1.5 transition-colors"
+                      className="text-[11px] font-mono text-emerald-300 bg-emerald-950/80 hover:bg-emerald-900/80 px-3 py-1 rounded-xl border border-emerald-400/50 flex items-center gap-1.5 transition-colors"
                     >
-                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                       <span>Evidence: {item.evidenceIds[0]}</span>
                     </button>
 
@@ -155,10 +155,10 @@ export const SkillsMatrix: React.FC<SkillsMatrixProps> = ({
                         href={item.credentialUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-xs text-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-1"
+                        className="text-xs text-cyan-400 hover:text-cyan-300 font-bold inline-flex items-center gap-1"
                       >
                         <span>Verify Credential</span>
-                        <ExternalLink className="w-3 h-3" />
+                        <ExternalLink className="w-3.5 h-3.5" />
                       </a>
                     )}
                   </div>

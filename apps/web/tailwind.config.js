@@ -4,6 +4,13 @@ export default {
   theme: {
     extend: {
       colors: {
+        liquid: {
+          dark: "#030712",
+          deep: "#080d1a",
+          card: "rgba(15, 23, 42, 0.75)",
+          border: "rgba(255, 255, 255, 0.12)",
+          glow: "rgba(0, 102, 255, 0.35)",
+        },
         electric: {
           50: "#eef7ff",
           100: "#d9eeff",
@@ -16,6 +23,14 @@ export default {
           800: "#0043a4",
           900: "#043985",
         },
+        neon: {
+          cyan: "#00F0FF",
+          blue: "#0066FF",
+          purple: "#A855F7",
+          magenta: "#EC4899",
+          emerald: "#10B981",
+          amber: "#F59E0B",
+        },
         silver: {
           50: "#f8fafc",
           100: "#f1f5f9",
@@ -23,13 +38,6 @@ export default {
           300: "#cbd5e1",
           400: "#94a3b8",
           500: "#64748b",
-        },
-        chrome: {
-          light: "#ffffff",
-          surface: "#f8fafc",
-          border: "rgba(226, 232, 240, 0.85)",
-          edge: "rgba(255, 255, 255, 0.9)",
-          dark: "#0f172a",
         },
       },
       fontFamily: {
@@ -40,23 +48,34 @@ export default {
         mono: ["'JetBrains Mono'", "'SF Mono'", "Menlo", "Consolas", "monospace"],
       },
       boxShadow: {
-        glass: "0 8px 32px 0 rgba(0, 0, 0, 0.04)",
-        "glass-hover": "0 16px 40px -4px rgba(0, 102, 255, 0.08)",
-        "glass-elevated": "0 20px 48px -8px rgba(15, 23, 42, 0.08)",
-        glow: "0 0 25px rgba(0, 102, 255, 0.2)",
-        "glow-cyan": "0 0 25px rgba(0, 216, 255, 0.2)",
-        "glow-subtle": "0 0 15px rgba(0, 102, 255, 0.1)",
-        metallic: "0 2px 10px rgba(0, 0, 0, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.8)",
+        glass: "0 8px 32px 0 rgba(0, 0, 0, 0.37)",
+        "glass-hover": "0 16px 48px -4px rgba(0, 102, 255, 0.25)",
+        "liquid-card": "0 10px 40px -10px rgba(0, 102, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15)",
+        "liquid-glow": "0 0 35px rgba(0, 240, 255, 0.3)",
+        "glow-cyan": "0 0 30px rgba(0, 240, 255, 0.35)",
+        "glow-blue": "0 0 30px rgba(0, 102, 255, 0.4)",
+        "glow-magenta": "0 0 30px rgba(236, 72, 153, 0.35)",
       },
       animation: {
-        "spin-slow": "spin 20s linear infinite",
+        "spin-slow": "spin 25s linear infinite",
         "pulse-slow": "pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-        "fade-in": "fadeIn 0.4s ease-out forwards",
+        "fluid-blob": "fluidBlob 12s ease-in-out infinite alternate",
+        "scanline": "scanline 2s linear infinite",
+        "shimmer": "shimmer 2.5s infinite",
       },
       keyframes: {
-        fadeIn: {
-          "0%": { opacity: "0", transform: "translateY(8px)" },
-          "100%": { opacity: "1", transform: "translateY(0)" },
+        fluidBlob: {
+          "0%": { transform: "translate(0px, 0px) scale(1)" },
+          "50%": { transform: "translate(30px, -20px) scale(1.1)" },
+          "100%": { transform: "translate(-20px, 20px) scale(0.95)" },
+        },
+        scanline: {
+          "0%": { transform: "translateY(-100%)" },
+          "100%": { transform: "translateY(1000%)" },
+        },
+        shimmer: {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
         },
       },
     },

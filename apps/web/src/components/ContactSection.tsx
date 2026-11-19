@@ -22,34 +22,34 @@ export const ContactSection: React.FC = () => {
   };
 
   return (
-    <section id="contact" className="py-16 md:py-24 border-t border-slate-200/80 scroll-mt-20">
+    <section id="contact" className="py-16 md:py-24 border-t border-white/10 scroll-mt-20 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/60 text-blue-700 text-xs font-tech font-semibold mb-3">
-            <Mail className="w-3.5 h-3.5 text-blue-600" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-950/80 border border-cyan-400/40 text-cyan-300 text-xs font-tech font-bold mb-3 shadow-liquid-card">
+            <Mail className="w-3.5 h-3.5 text-cyan-400" />
             DIRECT VERIFIED COMMUNICATION
           </div>
-          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 font-headings">
+          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white font-headings">
             Connect & Collaborate
           </h2>
-          <p className="text-sm sm:text-base text-slate-500 font-body mt-2 leading-relaxed">
+          <p className="text-sm sm:text-base text-slate-400 font-body mt-2 leading-relaxed">
             Interested in autonomous AI multi-agent orchestration, calibrated applied ML pipelines, or resilient full-stack systems engineering? Reach out directly.
           </p>
         </div>
 
         {/* Contact Glass Card */}
-        <div className="max-w-2xl mx-auto glass-panel-elevated rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-glass-elevated">
+        <div className="max-w-2xl mx-auto glass-panel-elevated rounded-3xl p-6 sm:p-8 border border-white/15 shadow-2xl">
           {/* Email Interaction Row */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-xl bg-blue-50 text-blue-600 border border-blue-200 shrink-0">
-                <Mail className="w-5 h-5" />
+          <div className="p-5 rounded-2xl bg-slate-950/90 border border-white/10 shadow-inner mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              <div className="p-3.5 rounded-2xl bg-blue-600/20 text-cyan-400 border border-blue-500/30 shrink-0">
+                <Mail className="w-6 h-6" />
               </div>
               <div className="text-left">
-                <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider block">
+                <span className="text-[10px] font-mono font-bold text-cyan-400/80 uppercase tracking-wider block">
                   PRIMARY EMAIL
                 </span>
-                <span className="text-sm sm:text-base font-mono font-semibold text-slate-900">
+                <span className="text-sm sm:text-base font-mono font-bold text-white">
                   {email}
                 </span>
               </div>
@@ -59,16 +59,16 @@ export const ContactSection: React.FC = () => {
               <button
                 type="button"
                 onClick={handleCopy}
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 text-slate-700 text-xs font-tech font-semibold hover:bg-slate-50 transition-colors shadow-xs"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-white/15 text-slate-200 text-xs font-tech font-semibold hover:bg-white/10 transition-colors shadow-xs"
               >
                 {copied ? (
                   <>
-                    <Check className="w-3.5 h-3.5 text-emerald-600" />
-                    <span className="text-emerald-700">Copied</span>
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <span className="text-emerald-300 font-bold">Copied</span>
                   </>
                 ) : (
                   <>
-                    <Copy className="w-3.5 h-3.5 text-slate-500" />
+                    <Copy className="w-3.5 h-3.5 text-slate-400" />
                     <span>Copy</span>
                   </>
                 )}
@@ -76,7 +76,7 @@ export const ContactSection: React.FC = () => {
 
               <a
                 href={`mailto:${email}`}
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-tech font-semibold hover:bg-blue-700 transition-colors shadow-sm"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white text-xs font-tech font-bold hover:from-blue-500 hover:to-cyan-400 transition-colors shadow-liquid-glow"
               >
                 <Send className="w-3.5 h-3.5" />
                 <span>Send Mail</span>
@@ -90,48 +90,48 @@ export const ContactSection: React.FC = () => {
               href="https://github.com/yashwanth4545"
               target="_blank"
               rel="noreferrer"
-              className="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-slate-400 transition-all shadow-xs flex items-center justify-between group"
+              className="p-4 rounded-2xl bg-slate-950/70 border border-white/10 hover:border-cyan-400/60 transition-all shadow-xs flex items-center justify-between group"
             >
               <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-slate-900 text-white">
+                <div className="p-2.5 rounded-xl bg-slate-900 border border-white/10 text-white">
                   <Github className="w-4 h-4" />
                 </div>
                 <div className="text-left">
-                  <div className="text-xs font-bold text-slate-900 font-tech">GitHub Profile</div>
-                  <div className="text-[11px] font-mono text-slate-400">@yashwanth4545</div>
+                  <div className="text-xs font-bold text-white font-tech">GitHub Profile</div>
+                  <div className="text-[11px] font-mono text-cyan-400">@yashwanth4545</div>
                 </div>
               </div>
-              <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-slate-900 transition-colors" />
+              <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-cyan-300 transition-colors" />
             </a>
 
             <a
               href="https://linkedin.com/in/yashwanthreddy-g"
               target="_blank"
               rel="noreferrer"
-              className="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-400 transition-all shadow-xs flex items-center justify-between group"
+              className="p-4 rounded-2xl bg-slate-950/70 border border-white/10 hover:border-blue-400 transition-all shadow-xs flex items-center justify-between group"
             >
               <div className="flex items-center gap-3">
                 <div className="p-2.5 rounded-xl bg-blue-600 text-white">
                   <Linkedin className="w-4 h-4" />
                 </div>
                 <div className="text-left">
-                  <div className="text-xs font-bold text-slate-900 font-tech">LinkedIn Network</div>
-                  <div className="text-[11px] font-mono text-slate-400">/in/yashwanthreddy-g</div>
+                  <div className="text-xs font-bold text-white font-tech">LinkedIn Network</div>
+                  <div className="text-[11px] font-mono text-blue-300">/in/yashwanthreddy-g</div>
                 </div>
               </div>
-              <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
+              <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-cyan-300 transition-colors" />
             </a>
           </div>
 
           {/* Location & Cryptographic Provenance Indicator */}
-          <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 font-tech">
+          <div className="pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400 font-tech">
             <div className="flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-slate-400" />
+              <MapPin className="w-3.5 h-3.5 text-cyan-400" />
               <span>Bengaluru, India / Remote</span>
             </div>
 
-            <div className="flex items-center gap-1.5 text-emerald-700 font-mono text-[11px]">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+            <div className="flex items-center gap-1.5 text-emerald-400 font-mono text-[11px]">
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
               <span>Verified System Hash: 0x7F4A992C</span>
             </div>
           </div>
