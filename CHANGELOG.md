@@ -2,6 +2,53 @@
 
 All notable changes to the YASHUVERSE autonomous portfolio engine will be documented in this file.
 
+## [0.5.0] - Phase 5 Autonomous Portfolio Intelligence & Publishing Engine - 2026-11-19
+
+### Added
+- **Publishing & SEO Contracts (`packages/contracts/src/publishing.ts`)**:
+  - Implemented typed interfaces for `PortfolioVersionSnapshot`, `SeoMetadata`, `PublishingAuditRecord`, and `NotificationEvent`.
+- **Database Schema & Atomic Stored Procedure (`infra/migrations/004_publishing_engine_and_seo.sql`)**:
+  - Enhanced `portfolio_versions` with SEO metadata, changelog summary, and approval ticket IDs.
+  - Added `publishing_audit_log` and `notifications` tables.
+  - Implemented PostgreSQL ACID stored procedure `publish_portfolio_version(...)` executing zero-downtime atomic active pointer switches.
+- **Factual Content Synthesizer (`apps/worker/src/publishing/content-generator.ts`)**:
+  - AI-powered project description generator strictly bounded by README architecture manifests and language byte share.
+  - Strict private repository security filter (`filterPrivateRepositories`) preventing confidential repo leaks.
+  - Release-backed achievement generator mapping verified GitHub releases to `achievement-timeline` items with evidence links.
+  - Deduplicated skill cloud updater (`updateSkillCloud`).
+- **SEO & Structured Data Generator (`apps/worker/src/publishing/seo-generator.ts`)**:
+  - Generates Schema.org JSON-LD structured data for `ProfilePage` & `Person`.
+  - OpenGraph and Twitter Card metadata generators.
+  - Dynamic XML `sitemap.xml` and `robots.txt` generators.
+- **Publishing Engine & Rollback Lifecycle (`apps/worker/src/publishing/publishing-engine.ts`)**:
+  - Deterministic SHA-256 content checksum computation.
+  - Duplicate publishing gate: skips redundant publication if candidate checksum matches active version.
+  - Quality and verification gates enforcing policy standards.
+  - Zero-downtime atomic version rollback (`rollbackVersion`).
+  - Structured audit trail and notifications emitter.
+- **Scheduled & Event-Driven Synchronization (`apps/worker/src/publishing/scheduler.ts`)**:
+  - `PeriodicSyncScheduler` managing background periodic repository polling and synchronization.
+- **API Publishing & SEO Endpoints (`apps/api/src/index.ts`)**:
+  - `GET /api/portfolio/versions`: Immutable version history list.
+  - `POST /api/portfolio/rollback/:version`: Atomic rollback to specified version with SSE event broadcast.
+  - `GET /api/portfolio/seo`: Returns generated OpenGraph and JSON-LD schema metadata.
+  - `GET /sitemap.xml`: Serves dynamic XML sitemap.
+  - `GET /robots.txt`: Serves crawl directives.
+  - `GET /api/publish/audit`: Returns publishing audit log.
+  - `GET /api/notifications`: Returns real-time alerts.
+- **Frontend Human Approval & Rollback Dashboard (`apps/web`)**:
+  - `HumanApprovalDrawer`: Interactive review queue drawer allowing operators to inspect pending review tickets, examine confidence scores and evidence citations, and one-click approve/reject.
+  - Connected live rollback button in `VersionHistoryModal`.
+  - Added "Review Queue" amber badge and "Version History" buttons to top navigation bar.
+  - Enhanced `index.html` with canonical tags, OpenGraph, Twitter Cards, and Schema.org JSON-LD scripts.
+- **Automated Test Suite Expansion**:
+  - Added Content Generator & Security Guardrails tests (5 tests).
+  - Added SEO & Sitemap Generator tests (3 tests).
+  - Added Publishing Engine & Rollback Lifecycle tests (6 tests).
+  - Added Periodic Sync Scheduler tests (2 tests).
+  - Added API Publishing & SEO tests (6 tests).
+  - Total automated monorepo test suite expanded from 73 to **95 passing tests** (88 TypeScript monorepo + 7 Python ML).
+
 ## [0.4.0] - Phase 4 Advanced Multi-Agent Intelligence System - 2026-11-19
 
 ### Added

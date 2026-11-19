@@ -19,6 +19,10 @@ export * from "./orchestration/memory-store.js";
 export * from "./orchestration/message-bus.js";
 export * from "./orchestration/execution-logger.js";
 export * from "./orchestration/workflow-orchestrator.js";
+export * from "./publishing/content-generator.js";
+export * from "./publishing/seo-generator.js";
+export * from "./publishing/publishing-engine.js";
+export * from "./publishing/scheduler.js";
 
 export async function processInboundSourceEvent(
   event: SourceEvent

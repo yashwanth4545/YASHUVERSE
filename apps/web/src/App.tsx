@@ -3,6 +3,7 @@ import {
   type AgentId,
   type AgentPresenceEvent,
   type WorkflowEvent,
+  type HumanApprovalTicket,
   AGENT_REGISTRY,
 } from "@yashuverse/contracts";
 import {
@@ -20,6 +21,7 @@ import { ActivityTimeline } from "./components/ActivityTimeline";
 import { PortfolioRenderer } from "./components/PortfolioRenderer";
 import { EvidenceInspectorModal } from "./components/EvidenceInspectorModal";
 import { VersionHistoryModal } from "./components/VersionHistoryModal";
+import { HumanApprovalDrawer } from "./components/HumanApprovalDrawer";
 
 import {
   Cpu,
@@ -30,6 +32,8 @@ import {
   Terminal,
   Activity,
   FileCheck,
+  History,
+  ShieldAlert,
 } from "lucide-react";
 
 export const App: React.FC = () => {
@@ -61,7 +65,62 @@ export const App: React.FC = () => {
   // Modals & Inspection State
   const [inspectingEvidenceId, setInspectingEvidenceId] = useState<string | null>(null);
   const [isVersionModalOpen, setIsVersionModalOpen] = useState(false);
+  const [isApprovalDrawerOpen, setIsApprovalDrawerOpen] = useState(false);
   const [activeAgentSelection, setActiveAgentSelection] = useState<AgentId | null>(null);
+
+  // Human-in-the-loop pending approval tickets
+  const [pendingTickets, setPendingTickets] = useState<HumanApprovalTicket[]>([
+    {
+      ticketId: "ticket-seed-101",
+      workflowId: "wf-seed-review",
+      candidateVersion: 2,
+      proposedChangesSummary: "New Release v2.1: Distributed Task Engine & High-Dimensional Embeddings",
+      confidenceScore: 0.88,
+      evidenceIds: ["ev-repo-yashuverse-001", "ev-commit-init-002"],
+      reviewReason: "Confidence score (0.88) falls in operator review window (0.75 - 0.91)",
+      status: "pending",
+      requestedBy: "verification_agent",
+      createdAt: new Date().toISOString(),
+    },
+  ]);
+
+  const handleRollback = async (version: number) => {
+    try {
+      const res = await fetch(`/api/portfolio/rollback/${version}`, { method: "POST" });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.activePortfolio) {
+          setPortfolio(data.activePortfolio);
+        } else {
+          setPortfolio((prev) => ({ ...prev, version }));
+        }
+      } else {
+        setPortfolio((prev) => ({ ...prev, version }));
+      }
+    } catch {
+      setPortfolio((prev) => ({ ...prev, version }));
+    }
+  };
+
+  const handleDecision = async (
+    ticketId: string,
+    decision: "approved" | "rejected",
+    reviewerNotes: string
+  ) => {
+    try {
+      await fetch(`/api/approval/${ticketId}/decision`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ decision, reviewerNotes }),
+      });
+    } catch {
+      // Ignore network errors in local dev
+    }
+    setPendingTickets((prev) => prev.filter((t) => t.ticketId !== ticketId));
+    if (decision === "approved") {
+      setPortfolio((prev) => ({ ...prev, version: prev.version + 1 }));
+    }
+  };
 
   // Demo Running State
   const [isDemoRunning, setIsDemoRunning] = useState(false);
@@ -406,6 +465,33 @@ export const App: React.FC = () => {
               <Layers className="w-3.5 h-3.5" />
               Interactive Portfolio
             </button>
+
+            {/* Review Queue Badge Button */}
+            <button
+              type="button"
+              onClick={() => setIsApprovalDrawerOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-50 border border-amber-200 text-amber-800 hover:bg-amber-100 transition-all shadow-sm"
+              title="Inspect pending human approval tickets"
+            >
+              <ShieldAlert className="w-3.5 h-3.5 text-amber-600" />
+              <span>Review Queue</span>
+              {pendingTickets.length > 0 && (
+                <span className="w-4 h-4 rounded-full bg-amber-500 text-white text-[10px] font-bold flex items-center justify-center">
+                  {pendingTickets.length}
+                </span>
+              )}
+            </button>
+
+            {/* Version History Button */}
+            <button
+              type="button"
+              onClick={() => setIsVersionModalOpen(true)}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 transition-all shadow-sm"
+              title="View immutable portfolio version snapshots & rollback"
+            >
+              <History className="w-3.5 h-3.5 text-slate-500" />
+              <span className="hidden sm:inline font-mono text-[11px]">v{portfolio.version}</span>
+            </button>
           </div>
         </div>
       </header>
@@ -695,6 +781,14 @@ export const App: React.FC = () => {
         isOpen={isVersionModalOpen}
         onClose={() => setIsVersionModalOpen(false)}
         activeVersion={portfolio.version}
+        onRollback={handleRollback}
+      />
+
+      <HumanApprovalDrawer
+        isOpen={isApprovalDrawerOpen}
+        onClose={() => setIsApprovalDrawerOpen(false)}
+        tickets={pendingTickets}
+        onDecision={handleDecision}
       />
     </div>
   );

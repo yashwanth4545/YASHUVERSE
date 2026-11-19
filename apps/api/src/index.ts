@@ -17,6 +17,8 @@ import {
   defaultWorkflowOrchestrator,
   defaultExecutionLogger,
   defaultSharedMemory,
+  defaultPublishingEngine,
+  defaultSeoGenerator,
 } from "@yashuverse/worker";
 
 const app = express();
@@ -64,7 +66,9 @@ app.get("/api/health", (_req: Request, res: Response) => {
 
 // Active Portfolio (Validated through Zod before responding)
 app.get("/api/portfolio/active", (_req: Request, res: Response) => {
-  const validation = validatePortfolioDocument(activePortfolio);
+  const activeSnapshot = defaultPublishingEngine.getActiveVersion();
+  const currentDoc = activeSnapshot?.content || activePortfolio;
+  const validation = validatePortfolioDocument(currentDoc);
   if (!validation.success) {
     res.status(500).json({
       error: "Active portfolio data failed strict schema validation",
@@ -75,12 +79,74 @@ app.get("/api/portfolio/active", (_req: Request, res: Response) => {
   res.json(validation.data);
 });
 
-// Versions History
+// Versions History (Immutable snapshot timeline)
 app.get("/api/portfolio/versions", (_req: Request, res: Response) => {
+  const allSnapshots = defaultPublishingEngine.getAllVersions();
+  const activeSnapshot = defaultPublishingEngine.getActiveVersion();
   res.json({
-    activeVersion: activePortfolio.version,
-    versions: portfolioVersions,
+    activeVersion: activeSnapshot?.version || activePortfolio.version,
+    versions: allSnapshots.length > 0 ? allSnapshots : portfolioVersions,
   });
+});
+
+// Atomic Rollback Endpoint
+app.post("/api/portfolio/rollback/:version", async (req: Request, res: Response) => {
+  const versionParam = req.params.version;
+  if (!versionParam) {
+    res.status(400).json({ error: "Missing version parameter" });
+    return;
+  }
+  const targetVer = parseInt(versionParam, 10);
+  if (isNaN(targetVer)) {
+    res.status(400).json({ error: "Invalid version number" });
+    return;
+  }
+  const result = await defaultPublishingEngine.rollbackVersion(targetVer);
+  if (!result.success) {
+    res.status(404).json({ error: result.error });
+    return;
+  }
+  // Broadcast rollback presence and event over SSE
+  eventBus.broadcast("portfolio.published", {
+    version: targetVer,
+    status: "rolled_back",
+    occurredAt: new Date().toISOString(),
+  });
+  res.json(result);
+});
+
+// SEO Metadata Endpoint
+app.get("/api/portfolio/seo", (_req: Request, res: Response) => {
+  const active = defaultPublishingEngine.getActiveVersion();
+  const currentDoc = active?.content || activePortfolio;
+  const seo = defaultSeoGenerator.generateSeoMetadata(currentDoc);
+  res.json(seo);
+});
+
+// Dynamic XML Sitemap for Search Engines
+app.get("/sitemap.xml", (_req: Request, res: Response) => {
+  const xml = defaultSeoGenerator.generateSitemapXml();
+  res.setHeader("Content-Type", "application/xml");
+  res.send(xml);
+});
+
+// Crawl Directives
+app.get("/robots.txt", (_req: Request, res: Response) => {
+  const txt = defaultSeoGenerator.generateRobotsTxt();
+  res.setHeader("Content-Type", "text/plain");
+  res.send(txt);
+});
+
+// Publishing Audit Trail
+app.get("/api/publish/audit", (_req: Request, res: Response) => {
+  const logs = defaultPublishingEngine.getAuditLogs();
+  res.json({ count: logs.length, logs });
+});
+
+// Real-Time Notifications
+app.get("/api/notifications", (_req: Request, res: Response) => {
+  const notifications = defaultPublishingEngine.getNotifications();
+  res.json({ count: notifications.length, notifications });
 });
 
 // Evidence Lookup

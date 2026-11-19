@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://yashwanthreddyg-portfolio.web.app/sitemap.xml
