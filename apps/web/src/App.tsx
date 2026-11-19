@@ -27,11 +27,9 @@ import { AgentCursors } from "./components/AgentCursors";
 import { EvidenceInspectorModal } from "./components/EvidenceInspectorModal";
 import { VersionHistoryModal } from "./components/VersionHistoryModal";
 import { HumanApprovalDrawer } from "./components/HumanApprovalDrawer";
-import { AutonomousSiteBuilder } from "./components/AutonomousSiteBuilder";
-import { loadPersistedBuild, clearPersistedBuild } from "./engine/autonomous-site-engine";
 import { useSSEStream } from "./hooks/useSSEStream";
 
-import { ShieldCheck, GitBranch, CheckCircle2, Cpu, ArrowRight, Zap } from "lucide-react";
+import { ShieldCheck, GitBranch, CheckCircle2, Zap, Sparkles } from "lucide-react";
 
 export const AppContent: React.FC = () => {
   // Portfolio Document State (Strictly Validated JSON)
@@ -44,32 +42,10 @@ export const AppContent: React.FC = () => {
   const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
   const [activeAgentSelection, setActiveAgentSelection] = useState<AgentId | null>(null);
 
-  // True Multi-Agent Website Generation Engine State
-  const [isSiteGenerated, setIsSiteGenerated] = useState<boolean>(() => {
-    if (typeof window !== "undefined") {
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get("rebuild") === "true") return false;
-      return Boolean(loadPersistedBuild());
-    }
-    return false;
-  });
-
-  // Real System Boot & Initialization Sequence (Skippable, < 3s, real service telemetry)
-  const [isBooting, setIsBooting] = useState<boolean>(() => {
-    if (typeof window !== "undefined") {
-      const alreadyBooted = sessionStorage.getItem("yashuverse_booted");
-      const prefersReduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      return !alreadyBooted && !prefersReduce;
-    }
-    return false;
-  });
-  const [bootStep, setBootStep] = useState(1);
-  const [bootTelemetry, setBootTelemetry] = useState<string>("Verifying API Gateway & Event Bus...");
-
-  // Auto-assembly state (Generative site build trigger)
-  const [isAssembling, setIsAssembling] = useState(false);
-  const [assemblyStep, setAssemblyStep] = useState(0);
-  const [assemblyProgress, setAssemblyProgress] = useState(100);
+  // Auto-assembly state (Generative site build trigger - runs when visitor opens site!)
+  const [isAssembling, setIsAssembling] = useState(true);
+  const [assemblyStep, setAssemblyStep] = useState(1);
+  const [assemblyProgress, setAssemblyProgress] = useState(10);
 
   // Git update simulation / real webhook state
   const [isGitUpdating, setIsGitUpdating] = useState(false);
@@ -131,50 +107,6 @@ export const AppContent: React.FC = () => {
         setPortfolio(INITIAL_PORTFOLIO);
       });
   }, []);
-
-  // Boot Sequence Telemetry Runner (< 2.2 seconds)
-  useEffect(() => {
-    if (!isBooting) return;
-
-    let timer1: any, timer2: any, timer3: any;
-
-    fetch("/api/system/status")
-      .then((res) => res.json())
-      .then((_data) => {
-        setBootStep(2);
-        setBootTelemetry("Synchronizing 12-Agent Fleet & Sandbox Pool...");
-      })
-      .catch(() => {
-        setBootStep(2);
-        setBootTelemetry("Using Local Heuristic Engine & Sandbox...");
-      });
-
-    timer1 = setTimeout(() => {
-      setBootStep(3);
-      setBootTelemetry("Loading Append-Only Event Store & Portfolio Ledger...");
-    }, 600);
-
-    timer2 = setTimeout(() => {
-      setBootStep(4);
-      setBootTelemetry("Ecosystem Online. Loading Autonomous Studio & Portfolio.");
-    }, 1200);
-
-    timer3 = setTimeout(() => {
-      setIsBooting(false);
-      sessionStorage.setItem("yashuverse_booted", "true");
-    }, 1800);
-
-    return () => {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-      clearTimeout(timer3);
-    };
-  }, [isBooting]);
-
-  const handleSkipBoot = () => {
-    setIsBooting(false);
-    sessionStorage.setItem("yashuverse_booted", "true");
-  };
 
   // Atomic Rollback Handler
   const handleRollback = async (version: number) => {
@@ -392,97 +324,50 @@ export const AppContent: React.FC = () => {
     }, 4000);
   };
 
-  // Trigger Genuine Multi-Agent Site Rebuild
-  const handleRebuildSite = () => {
-    clearPersistedBuild();
-    setIsSiteGenerated(false);
-  };
-
   // Extract sections
   const projectSection = portfolio.sections.find((s) => s.type === "project-grid") as ProjectGridSection | undefined;
   const skillSection = portfolio.sections.find((s) => s.type === "skill-cloud") as SkillCloudSection | undefined;
   const achievementSection = portfolio.sections.find((s) => s.type === "achievement-timeline") as AchievementTimelineSection | undefined;
 
-  // If the site has not yet been generated (or rebuild requested), stream true multi-agent construction
-  if (!isSiteGenerated) {
-    return (
-      <AutonomousSiteBuilder
-        onComplete={() => {
-          setIsSiteGenerated(true);
-        }}
-        reducedMotion={reducedMotion}
-      />
-    );
-  }
+  // Auto-trigger agentic canvas design on initial load
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      runAutonomousAssembly();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [runAutonomousAssembly]);
 
   return (
     <div
       ref={workspaceCanvasRef}
       className="min-h-screen bg-[#030712] text-slate-100 font-sans relative selection:bg-cyan-500 selection:text-black overflow-x-hidden"
     >
-      {/* Cinematic AI Initialization Overlay (< 2.2s, skippable) */}
-      {isBooting && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-[#030712] backdrop-blur-2xl animate-fade-in select-none">
-          <div className="max-w-md w-full rounded-3xl p-8 bg-slate-950/90 border border-white/10 shadow-[0_0_80px_rgba(0,102,255,0.25)] flex flex-col items-center text-center relative overflow-hidden">
-            {/* Ambient Halo */}
-            <div className="absolute -top-24 -left-24 w-48 h-48 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
-
-            {/* Glowing Logo Monogram */}
-            <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-cyan-400 via-blue-600 to-purple-600 p-0.5 shadow-liquid-glow mb-6 animate-pulse">
-              <div className="w-full h-full bg-[#030712] rounded-[22px] flex items-center justify-center">
-                <Cpu className="w-8 h-8 text-cyan-300" />
-              </div>
-            </div>
-
-            <h2 className="text-2xl font-extrabold text-white font-headings tracking-tight mb-1">
-              YASHUVERSE AI ECOSYSTEM
-            </h2>
-            <p className="text-xs font-mono text-cyan-400 mb-6">
-              12 Autonomous Agents • Sandbox Pool Ready
-            </p>
-
-            {/* Service Verification Telemetry */}
-            <div className="w-full space-y-2.5 font-mono text-xs text-left mb-6 p-4 rounded-2xl bg-[#030712] border border-white/10">
-              <div className="flex items-center justify-between text-slate-300">
-                <span>API Gateway (Node 24 LTS)</span>
-                <span className="text-emerald-400 font-bold">ONLINE (2ms)</span>
-              </div>
-              <div className="flex items-center justify-between text-slate-300">
-                <span>Event Bus & Replay Log</span>
-                <span className="text-emerald-400 font-bold">SSE ACTIVE</span>
-              </div>
-              <div className="flex items-center justify-between text-slate-300">
-                <span>Sandbox Process Supervisor</span>
-                <span className="text-emerald-400 font-bold">READY</span>
-              </div>
-              <div className="flex items-center justify-between text-slate-300">
-                <span>12 Autonomous Agents</span>
-                <span className="text-cyan-300 font-bold">SYNCHRONIZED</span>
-              </div>
-            </div>
-
-            {/* Progress Bar */}
-            <div className="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden border border-white/10 mb-3">
-              <div
-                className="bg-gradient-to-r from-blue-600 via-cyan-400 to-purple-500 h-1.5 rounded-full transition-all duration-300"
-                style={{ width: `${(bootStep / 4) * 100}%` }}
-              />
-            </div>
-
-            <p className="text-[11px] font-mono text-slate-400 mb-6 animate-pulse">
-              {bootTelemetry}
-            </p>
-
-            <button
-              type="button"
-              onClick={handleSkipBoot}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white/[0.05] hover:bg-white/10 border border-white/10 text-xs font-mono text-slate-300 hover:text-white transition-colors"
-            >
-              <span>Skip Initialization</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
+      {/* Stitch-style Floating Live Agent Orchestration Pill */}
+      {isAssembling && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full bg-slate-950/95 border border-cyan-400/60 shadow-[0_0_40px_rgba(0,240,255,0.3)] backdrop-blur-2xl flex items-center gap-3 font-mono text-xs text-white animate-fade-in pointer-events-auto">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-400" />
+          </span>
+          <span className="text-cyan-300 font-bold uppercase tracking-wider flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+            STITCH AGENTS DESIGNING CANVAS LIVE...
+          </span>
+          <span className="text-slate-500">•</span>
+          <span className="text-white font-bold">{assemblyProgress}%</span>
+          <span className="text-slate-500">•</span>
+          <span className="text-slate-400 text-[11px] hidden sm:inline">Stage {assemblyStep} of 5</span>
+          <button
+            type="button"
+            onClick={() => {
+              setIsAssembling(false);
+              setAssemblyStep(0);
+            }}
+            className="ml-2 px-2.5 py-1 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white text-[10px] font-bold transition-colors"
+            title="Immediately complete design and dismiss cursors"
+          >
+            Skip to Final
+          </button>
         </div>
       )}
 
@@ -504,7 +389,7 @@ export const AppContent: React.FC = () => {
         onOpenApprovals={() => setIsApprovalDrawerOpen(true)}
         pendingApprovalsCount={pendingTickets.length}
         sseStatus={sseStatus}
-        onTriggerRebuild={handleRebuildSite}
+        onTriggerRebuild={runAutonomousAssembly}
         isAssembling={isAssembling}
         onTriggerGitUpdate={handleTriggerGitUpdate}
         isGitUpdating={isGitUpdating}
@@ -515,19 +400,20 @@ export const AppContent: React.FC = () => {
         <div className="max-w-7xl mx-auto w-full flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-cyan-300 font-bold">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>AUTONOMOUS BUILD ONLINE (SHA-256: 0x9F7108A)</span>
+            <span>AUTONOMOUS STITCH CANVAS (SHA-256: 0x7F4A992C)</span>
             <span className="text-slate-500 hidden sm:inline">•</span>
-            <span className="text-slate-400 font-normal hidden sm:inline">Constructed by 7 Autonomous Agents</span>
+            <span className="text-slate-400 font-normal hidden sm:inline">Designed by 7 Autonomous Agents</span>
           </div>
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={handleRebuildSite}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-bold transition-all"
-              title="Clear cached build and watch the 7 autonomous agents collaboratively build the site letter-by-letter again"
+              onClick={runAutonomousAssembly}
+              disabled={isAssembling || isGitUpdating}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-bold transition-all disabled:opacity-50"
+              title="Watch the 7 autonomous agents collaboratively design the site live on the canvas again"
             >
               <Zap className="w-3.5 h-3.5 text-amber-400" />
-              <span>Rebuild Website Live (Multi-Agent Swarm)</span>
+              <span>{isAssembling ? "Designing Live..." : "Re-Design Canvas Live"}</span>
             </button>
           </div>
         </div>
@@ -546,7 +432,7 @@ export const AppContent: React.FC = () => {
           isAssembling={isAssembling}
           assemblyProgress={assemblyProgress}
           assemblyStep={assemblyStep}
-          onTriggerRebuild={handleRebuildSite}
+          onTriggerRebuild={runAutonomousAssembly}
           onTriggerGitUpdate={handleTriggerGitUpdate}
           isGitUpdating={isGitUpdating}
         />

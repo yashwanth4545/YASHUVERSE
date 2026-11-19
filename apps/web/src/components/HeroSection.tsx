@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AICore3D } from "./AICore3D";
 import { type AgentId } from "@yashuverse/contracts";
 import {
@@ -45,6 +45,55 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   isGitUpdating = false,
 }) => {
   const [showBiometricModal, setShowBiometricModal] = useState(false);
+
+  // Letter-by-letter live canvas typing state
+  const fullName = "Yashwanth Reddy G";
+  const fullBio =
+    "Directing self-governing multi-agent intelligence systems, calibrated pgvector semantic embeddings, and high-throughput production architectures backed by tamper-proof cryptographic evidence trails.";
+
+  const [typedTitle, setTypedTitle] = useState(fullName);
+  const [typedBio, setTypedBio] = useState(fullBio);
+
+  useEffect(() => {
+    let titleInterval: any;
+    let bioInterval: any;
+
+    if (isAssembling) {
+      if (assemblyStep < 3) {
+        setTypedTitle("");
+        setTypedBio("");
+      } else if (assemblyStep === 3) {
+        // Content Agent is actively typing on the screen
+        let idx = 0;
+        titleInterval = setInterval(() => {
+          idx++;
+          setTypedTitle(fullName.slice(0, idx));
+          if (idx >= fullName.length) {
+            clearInterval(titleInterval);
+            let bioIdx = 0;
+            bioInterval = setInterval(() => {
+              bioIdx += 3;
+              setTypedBio(fullBio.slice(0, bioIdx));
+              if (bioIdx >= fullBio.length) {
+                clearInterval(bioInterval);
+              }
+            }, 20);
+          }
+        }, 35);
+      } else {
+        setTypedTitle(fullName);
+        setTypedBio(fullBio);
+      }
+    } else {
+      setTypedTitle(fullName);
+      setTypedBio(fullBio);
+    }
+
+    return () => {
+      if (titleInterval) clearInterval(titleInterval);
+      if (bioInterval) clearInterval(bioInterval);
+    };
+  }, [isAssembling, assemblyStep]);
 
   return (
     <section id="hero" className="relative pt-24 pb-20 md:pt-32 md:pb-28 overflow-hidden">
@@ -199,9 +248,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
                 <h1
                   id="hero-headline-title"
-                  className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight font-headings text-liquid-gradient leading-[1.08] mb-3"
+                  className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight font-headings text-liquid-gradient leading-[1.08] mb-3 min-h-[48px] sm:min-h-[72px]"
                 >
-                  Yashwanth Reddy G
+                  {isAssembling && assemblyStep < 3 ? (
+                    <span className="text-slate-600 font-mono text-2xl sm:text-4xl">[ Content Agent Generating... ]</span>
+                  ) : (
+                    <>
+                      {typedTitle}
+                      {isAssembling && assemblyStep === 3 && typedTitle.length < fullName.length && (
+                        <span className="inline-block w-2 h-8 sm:h-12 bg-cyan-400 ml-1 animate-pulse" />
+                      )}
+                    </>
+                  )}
                 </h1>
 
                 <p className="text-xs sm:text-sm font-mono text-slate-300 flex items-center gap-2 flex-wrap">
@@ -219,8 +277,17 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </div>
 
             {/* Architectural Bio / Manifesto */}
-            <p className="text-base sm:text-lg text-slate-300 leading-relaxed font-body mb-8 max-w-2xl font-normal">
-              Directing self-governing multi-agent intelligence systems, calibrated pgvector semantic embeddings, and high-throughput production architectures backed by tamper-proof cryptographic evidence trails.
+            <p className="text-base sm:text-lg text-slate-300 leading-relaxed font-body mb-8 max-w-2xl font-normal min-h-[56px]">
+              {isAssembling && assemblyStep < 3 ? (
+                <span className="text-slate-600 font-mono text-sm">[ Dossier & Pillars Compiling... ]</span>
+              ) : (
+                <>
+                  {typedBio}
+                  {isAssembling && assemblyStep === 3 && typedBio.length < fullBio.length && (
+                    <span className="inline-block w-1.5 h-4 bg-cyan-400 ml-1 animate-pulse" />
+                  )}
+                </>
+              )}
             </p>
 
             {/* Quantitative Architecture Metrics Grid */}
