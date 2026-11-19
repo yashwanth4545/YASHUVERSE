@@ -8,6 +8,7 @@ import {
   Menu,
   X,
   Zap,
+  GitBranch,
 } from "lucide-react";
 
 interface NavbarProps {
@@ -19,6 +20,8 @@ interface NavbarProps {
   sseStatus?: string;
   onTriggerRebuild?: () => void;
   isAssembling?: boolean;
+  onTriggerGitUpdate?: (msg?: string) => void;
+  isGitUpdating?: boolean;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -30,14 +33,17 @@ export const Navbar: React.FC<NavbarProps> = ({
   sseStatus = "connected",
   onTriggerRebuild,
   isAssembling = false,
+  onTriggerGitUpdate,
+  isGitUpdating = false,
 }) => {
   const { isOwner } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
     { id: "hero", label: "Identity" },
-    { id: "workspace", label: "Agent Fleet" },
-    { id: "realtime-editor", label: "Live Editor" },
+    { id: "about", label: "Dossier" },
+    { id: "workspace", label: "Fleet" },
+    { id: "realtime-editor", label: "Editor" },
     { id: "projects", label: "Projects" },
     { id: "skills", label: "Skills" },
     { id: "contact", label: "Contact" },
@@ -49,13 +55,13 @@ export const Navbar: React.FC<NavbarProps> = ({
   );
 
   return (
-    <header className="fixed top-0 inset-x-0 z-50 bg-slate-950/85 backdrop-blur-2xl border-b border-white/10 transition-all duration-300">
+    <header className="fixed top-0 inset-x-0 z-40 bg-[#030712]/80 backdrop-blur-2xl border-b border-white/[0.08] transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="h-16 flex items-center justify-between gap-4">
-          {/* Brand Logo & Telemetry Dot */}
+          {/* Brand Logo & Telemetry Indicator */}
           <a href="#hero" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-blue-600 via-cyan-400 to-purple-600 flex items-center justify-center text-white shadow-liquid-glow group-hover:scale-105 transition-transform p-0.5">
-              <div className="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
+            <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-cyan-400 via-blue-600 to-purple-600 flex items-center justify-center text-white shadow-liquid-glow group-hover:scale-105 transition-transform p-0.5">
+              <div className="w-full h-full bg-[#030712] rounded-[14px] flex items-center justify-center">
                 <span className="font-headings font-black text-sm text-cyan-300 tracking-wider">Y</span>
               </div>
             </div>
@@ -71,23 +77,23 @@ export const Navbar: React.FC<NavbarProps> = ({
                 />
               </div>
               <span className="text-[9px] font-mono text-cyan-300/80 -mt-0.5">
-                Autonomous Ecosystem
+                Autonomous AI Systems
               </span>
             </div>
           </a>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden lg:flex items-center gap-1">
             {navItems.map((item) => {
               const isActive = activeSection === item.id;
               return (
                 <a
                   key={item.id}
                   href={`#${item.id}`}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-tech font-semibold transition-all ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-mono font-medium transition-all ${
                     isActive
-                      ? "bg-blue-600/30 text-cyan-300 border border-cyan-400/50 shadow-liquid-glow"
-                      : "text-slate-300 hover:text-white hover:bg-white/5"
+                      ? "bg-white/[0.08] text-cyan-300 border border-white/20 shadow-sm"
+                      : "text-slate-400 hover:text-white hover:bg-white/[0.04]"
                   }`}
                 >
                   {item.label}
@@ -97,18 +103,32 @@ export const Navbar: React.FC<NavbarProps> = ({
           </nav>
 
           {/* Right Action Buttons */}
-          <div className="hidden sm:flex items-center gap-2.5">
+          <div className="hidden sm:flex items-center gap-2">
+            {/* Git Update Simulation CTA */}
+            {onTriggerGitUpdate && (
+              <button
+                type="button"
+                onClick={() => onTriggerGitUpdate("feat: update neural retrieval memory & ast pipeline")}
+                disabled={isAssembling || isGitUpdating}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.03] border border-white/10 hover:border-cyan-400/40 text-slate-300 hover:text-white text-xs font-mono transition-all"
+                title="Simulate Git Push to watch the agents wake up and re-compile"
+              >
+                <GitBranch className="w-3.5 h-3.5 text-cyan-400" />
+                <span>{isGitUpdating ? "Syncing Git..." : "Simulate Push"}</span>
+              </button>
+            )}
+
             {/* Run Auto-Build CTA */}
             {onTriggerRebuild && (
               <button
                 type="button"
                 onClick={onTriggerRebuild}
-                disabled={isAssembling}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white text-xs font-tech font-bold hover:from-blue-500 hover:to-cyan-400 transition-all shadow-liquid-glow"
+                disabled={isAssembling || isGitUpdating}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 via-cyan-500 to-purple-600 text-white text-xs font-tech font-bold hover:opacity-90 transition-all shadow-liquid-glow"
                 title="Trigger real-time autonomous agent build sequence"
               >
                 <Zap className="w-3.5 h-3.5 text-amber-300" />
-                <span>{isAssembling ? "Building..." : "Auto-Build"}</span>
+                <span>{isAssembling ? "Designing..." : "Re-Build"}</span>
               </button>
             )}
 
@@ -116,11 +136,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               type="button"
               onClick={onOpenVersions}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-white/10 bg-slate-900/80 text-xs font-mono text-slate-200 hover:bg-slate-800 hover:border-cyan-400/40 transition-colors shadow-xs"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-white/10 bg-slate-900/80 text-xs font-mono text-slate-300 hover:bg-slate-800 hover:border-cyan-400/40 transition-colors"
               title="Inspect Immutable Version History & Rollback"
             >
               <History className="w-3.5 h-3.5 text-cyan-400" />
-              <span>v{version}.0</span>
+              <span>v{version}.4</span>
             </button>
 
             {/* Pending Approvals Review Badge */}
@@ -128,7 +148,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 type="button"
                 onClick={onOpenApprovals || onOpenCommandCenter}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-500 text-slate-950 text-xs font-tech font-bold hover:bg-amber-400 transition-colors shadow-liquid-card animate-pulse"
+                className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-500 text-slate-950 text-xs font-mono font-bold hover:bg-amber-400 transition-colors shadow-liquid-card animate-pulse"
                 title={`${pendingApprovalsCount} updates awaiting human approval`}
               >
                 <span>Review ({pendingApprovalsCount})</span>
@@ -148,7 +168,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               {isOwner ? (
                 <>
                   <Unlock className="w-3.5 h-3.5 text-emerald-300" />
-                  <span>Owner Mode</span>
+                  <span>Owner</span>
                 </>
               ) : (
                 <>
@@ -160,7 +180,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* Mobile Menu Toggle */}
-          <div className="flex md:hidden items-center gap-2">
+          <div className="flex lg:hidden items-center gap-2">
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -173,40 +193,55 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Mobile Dropdown Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-white/10 space-y-2 bg-slate-950/95">
+          <div className="lg:hidden py-4 border-t border-white/10 space-y-2 bg-[#030712]/95 backdrop-blur-2xl">
             {navItems.map((item) => (
               <a
                 key={item.id}
                 href={`#${item.id}`}
                 onClick={() => setMobileMenuOpen(false)}
-                className="block px-3 py-2 rounded-xl text-sm font-tech font-semibold text-slate-200 hover:bg-white/10"
+                className="block px-3 py-2 rounded-xl text-sm font-mono text-slate-200 hover:bg-white/10"
               >
                 {item.label}
               </a>
             ))}
 
-            <div className="pt-3 border-t border-white/10 flex items-center justify-between gap-2 px-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onOpenVersions();
-                }}
-                className="flex-1 py-2 text-center rounded-xl border border-white/10 text-xs font-mono text-slate-200"
-              >
-                v{version}.0 History
-              </button>
+            <div className="pt-3 border-t border-white/10 flex flex-col gap-2 px-2">
+              {onTriggerGitUpdate && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onTriggerGitUpdate("feat: mobile git trigger");
+                  }}
+                  className="w-full py-2.5 text-center rounded-xl bg-cyan-950/60 border border-cyan-500/40 text-xs font-mono text-cyan-300"
+                >
+                  Simulate Git Push (Wake Agents)
+                </button>
+              )}
 
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onOpenCommandCenter();
-                }}
-                className="flex-1 py-2 text-center rounded-xl bg-blue-600 text-white text-xs font-tech font-semibold"
-              >
-                Command Center
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onOpenVersions();
+                  }}
+                  className="flex-1 py-2 text-center rounded-xl border border-white/10 text-xs font-mono text-slate-200"
+                >
+                  v{version}.4 History
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onOpenCommandCenter();
+                  }}
+                  className="flex-1 py-2 text-center rounded-xl bg-blue-600 text-white text-xs font-tech font-semibold"
+                >
+                  Command Center
+                </button>
+              </div>
             </div>
           </div>
         )}

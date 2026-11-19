@@ -16,6 +16,7 @@ import {
 import { AuthProvider } from "./context/AuthContext";
 import { Navbar } from "./components/Navbar";
 import { HeroSection } from "./components/HeroSection";
+import { AboutSection } from "./components/AboutSection";
 import { AgentWorkspace } from "./components/AgentWorkspace";
 import { RealtimeEditor } from "./components/RealtimeEditor";
 import { ProjectUniverse } from "./components/ProjectUniverse";
@@ -28,7 +29,7 @@ import { VersionHistoryModal } from "./components/VersionHistoryModal";
 import { HumanApprovalDrawer } from "./components/HumanApprovalDrawer";
 import { useSSEStream } from "./hooks/useSSEStream";
 
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, GitBranch, CheckCircle2 } from "lucide-react";
 
 export const AppContent: React.FC = () => {
   // Portfolio Document State (Strictly Validated JSON)
@@ -45,6 +46,14 @@ export const AppContent: React.FC = () => {
   const [isAssembling, setIsAssembling] = useState(false);
   const [assemblyStep, setAssemblyStep] = useState(0);
   const [assemblyProgress, setAssemblyProgress] = useState(100);
+
+  // Git update simulation / real webhook state
+  const [isGitUpdating, setIsGitUpdating] = useState(false);
+  const [gitToast, setGitToast] = useState<{
+    sha: string;
+    message: string;
+    author: string;
+  } | null>(null);
 
   // Accessibility: Reduced Motion
   const [reducedMotion] = useState<boolean>(() => {
@@ -74,7 +83,7 @@ export const AppContent: React.FC = () => {
       ticketId: "ticket-seed-101",
       workflowId: "wf-seed-review",
       candidateVersion: 2,
-      proposedChangesSummary: "New Release v2.1: Distributed Task Engine & High-Dimensional Embeddings",
+      proposedChangesSummary: "New Release v2.4: Distributed Task Engine & High-Dimensional Embeddings",
       confidenceScore: 0.88,
       evidenceIds: ["ev-repo-yashuverse-001", "ev-commit-init-002"],
       reviewReason: "Confidence score (0.88) falls in operator review window (0.75 - 0.91)",
@@ -143,7 +152,7 @@ export const AppContent: React.FC = () => {
   const runAutonomousAssembly = useCallback(async () => {
     setIsAssembling(true);
     setAssemblyProgress(5);
-    setAssemblyStep(0);
+    setAssemblyStep(1);
 
     const workflowId = `wf-assembly-${Date.now().toString(36)}`;
 
@@ -193,13 +202,13 @@ export const AppContent: React.FC = () => {
     setAssemblyProgress(20);
     setAssemblyStep(1);
 
-    await new Promise((r) => setTimeout(r, 1200));
+    await new Promise((r) => setTimeout(r, 1000));
 
-    // Stage 2: Design & Verification Agents Construct Portrait
+    // Stage 2: Design & Verification Agents Construct Portrait & Biometrics
     emitStep(
       "design_agent",
       "working",
-      "Rendering neural biometric frame for Yashwanth Reddy G",
+      "Synthesizing neural biometric frame for Yashwanth Reddy G",
       "hero-portrait-frame",
       "activity.classified",
       { asset: "/yashwanth.jpg", resolution: "high-dpi", lighting: "studio-cinematic" }
@@ -215,9 +224,9 @@ export const AppContent: React.FC = () => {
     setAssemblyProgress(45);
     setAssemblyStep(2);
 
-    await new Promise((r) => setTimeout(r, 1400));
+    await new Promise((r) => setTimeout(r, 1200));
 
-    // Stage 3: Content Agent Types Headline & Biography
+    // Stage 3: Content Agent Types Headline & Dossier Bio
     emitStep(
       "content_agent",
       "working",
@@ -229,7 +238,7 @@ export const AppContent: React.FC = () => {
     setAssemblyProgress(65);
     setAssemblyStep(3);
 
-    await new Promise((r) => setTimeout(r, 1300));
+    await new Promise((r) => setTimeout(r, 1100));
 
     // Stage 4: Developer & ML Agents Build Project Universe & 384-d Embeddings
     emitStep(
@@ -251,7 +260,7 @@ export const AppContent: React.FC = () => {
     setAssemblyProgress(85);
     setAssemblyStep(4);
 
-    await new Promise((r) => setTimeout(r, 1300));
+    await new Promise((r) => setTimeout(r, 1100));
 
     // Stage 5: Security & Quality Agents Run SecOps Scan
     emitStep(
@@ -273,9 +282,9 @@ export const AppContent: React.FC = () => {
     setAssemblyProgress(100);
     setAssemblyStep(5);
 
-    await new Promise((r) => setTimeout(r, 900));
+    await new Promise((r) => setTimeout(r, 800));
 
-    // Complete: Orchestrator passes all agents into steady patrol state
+    // Complete: Orchestrator passes all agents into finished state and CURSORS DISAPPEAR!
     emitStep(
       "orchestrator",
       "completed",
@@ -286,16 +295,100 @@ export const AppContent: React.FC = () => {
     );
 
     setIsAssembling(false);
+    setAssemblyStep(0);
   }, [portfolio.version, setPresenceMap, setEvents]);
 
   // Run autonomous build automatically on initial site visit!
   useEffect(() => {
     const timer = setTimeout(() => {
       runAutonomousAssembly();
-    }, 400);
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [runAutonomousAssembly]);
+
+  // Handle Git Webhook Simulation / Real Update Trigger
+  const handleTriggerGitUpdate = async (customMsg?: string) => {
+    if (isAssembling || isGitUpdating) return;
+
+    setIsGitUpdating(true);
+    const sha = Math.random().toString(16).substring(2, 9);
+    const commitMsg = customMsg || "feat(ml): update neural semantic clustering and pgvector indexing";
+    
+    setGitToast({
+      sha,
+      message: commitMsg,
+      author: "yashwanth4545",
+    });
+
+    const workflowId = `wf-git-sync-${sha}`;
+
+    // Wake up Developer Agent & Quality Agent
+    setPresenceMap((prev) => ({
+      ...prev,
+      project_agent: {
+        workflowId,
+        agentId: "project_agent",
+        state: "working",
+        taskLabel: `Compiling Git commit ${sha}: ${commitMsg}`,
+        targetId: "projects",
+        occurredAt: new Date().toISOString(),
+        eventId: `pres-git-${sha}`,
+      },
+      quality_agent: {
+        workflowId,
+        agentId: "quality_agent",
+        state: "working",
+        taskLabel: "SecOps & Regression Audit",
+        targetId: "realtime-editor",
+        occurredAt: new Date().toISOString(),
+        eventId: `pres-git-qa-${sha}`,
+      },
+    }));
+
+    setEvents((prev) => [
+      {
+        eventId: `evt-git-${Date.now()}`,
+        workflowId,
+        type: "project.discovered",
+        agentId: "project_agent",
+        payload: { sha, commit: commitMsg, author: "yashwanth4545" },
+        occurredAt: new Date().toISOString(),
+      },
+      ...prev,
+    ]);
+
+    await new Promise((r) => setTimeout(r, 2600));
+
+    // Finish build & increment version
+    setPortfolio((prev) => ({
+      ...prev,
+      version: prev.version + 1,
+      publishedAt: new Date().toISOString(),
+    }));
+
+    // Reset agents and DISAPPEAR cursors
+    setPresenceMap((prev) => ({
+      ...prev,
+      project_agent: {
+        ...prev.project_agent,
+        state: "completed",
+        taskLabel: "Git commit AST integrated",
+      },
+      quality_agent: {
+        ...prev.quality_agent,
+        state: "completed",
+        taskLabel: "Zero regressions verified",
+      },
+    }));
+
+    setIsGitUpdating(false);
+
+    // Auto-dismiss toast after 4 seconds
+    setTimeout(() => {
+      setGitToast(null);
+    }, 4000);
+  };
 
   // Extract sections
   const projectSection = portfolio.sections.find((s) => s.type === "project-grid") as ProjectGridSection | undefined;
@@ -307,13 +400,14 @@ export const AppContent: React.FC = () => {
       ref={workspaceCanvasRef}
       className="min-h-screen bg-[#030712] text-slate-100 font-sans relative selection:bg-cyan-500 selection:text-black overflow-x-hidden"
     >
-      {/* Real-time In-App Agent Cursors */}
+      {/* Real-time In-App Agent Cursors (Visible only when designing / updating, then disappear) */}
       <AgentCursors
         presenceMap={presenceMap}
         containerRef={workspaceCanvasRef}
         reducedMotion={reducedMotion}
         isAssembling={isAssembling}
         assemblyStep={assemblyStep}
+        isGitUpdating={isGitUpdating}
       />
 
       {/* Luxury Liquid Navbar */}
@@ -326,6 +420,8 @@ export const AppContent: React.FC = () => {
         sseStatus={sseStatus}
         onTriggerRebuild={runAutonomousAssembly}
         isAssembling={isAssembling}
+        onTriggerGitUpdate={handleTriggerGitUpdate}
+        isGitUpdating={isGitUpdating}
       />
 
       {/* Main Content Flow */}
@@ -340,10 +436,19 @@ export const AppContent: React.FC = () => {
           sseStatus={sseStatus}
           isAssembling={isAssembling}
           assemblyProgress={assemblyProgress}
+          assemblyStep={assemblyStep}
           onTriggerRebuild={runAutonomousAssembly}
+          onTriggerGitUpdate={handleTriggerGitUpdate}
+          isGitUpdating={isGitUpdating}
         />
 
-        {/* 2. Live AI Agent Workspace: 7 Specialized Phase 4 Agents */}
+        {/* 2. Dossier / About Yashwanth Reddy G */}
+        <AboutSection
+          onInspectEvidence={(evId) => setInspectingEvidenceId(evId)}
+          isGenerating={isAssembling}
+        />
+
+        {/* 3. Live AI Agent Workspace: 7 Specialized Phase 4 Agents */}
         <AgentWorkspace
           presenceMap={presenceMap}
           activeAgentId={activeAgentSelection}
@@ -354,14 +459,14 @@ export const AppContent: React.FC = () => {
           onOpenCommandCenter={() => setIsCommandCenterOpen(true)}
         />
 
-        {/* 3. Real-Time Agent Editing Stream */}
+        {/* 4. Real-Time Agent Editing Stream */}
         <RealtimeEditor
           events={events}
           onTriggerDemo={runAutonomousAssembly}
           isDemoRunning={isAssembling}
         />
 
-        {/* 4. Project Universe: Verified Repositories & Achievements */}
+        {/* 5. Project Universe: Verified Repositories & Achievements */}
         {projectSection && (
           <ProjectUniverse
             section={projectSection}
@@ -369,16 +474,38 @@ export const AppContent: React.FC = () => {
           />
         )}
 
-        {/* 5. Skills & Verified Milestones */}
+        {/* 6. Skills & Verified Milestones */}
         <SkillsMatrix
           skillsSection={skillSection}
           achievementsSection={achievementSection}
           onInspectEvidence={(evId) => setInspectingEvidenceId(evId)}
         />
 
-        {/* 6. Contact Experience */}
+        {/* 7. Contact Experience */}
         <ContactSection />
       </main>
+
+      {/* Floating Git Webhook Notification Toast */}
+      {gitToast && (
+        <div className="fixed bottom-6 right-6 z-50 max-w-sm sm:max-w-md p-4 rounded-3xl bg-slate-900/95 border border-cyan-400 shadow-[0_0_35px_rgba(0,240,255,0.4)] backdrop-blur-2xl animate-fade-in flex items-start gap-3.5">
+          <div className="p-2.5 rounded-2xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 shrink-0">
+            <GitBranch className="w-5 h-5 animate-pulse" />
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center justify-between text-xs font-mono font-bold text-cyan-300 mb-1">
+              <span>GIT PUSH DETECTED</span>
+              <span className="text-[10px] text-slate-400">commit {gitToast.sha}</span>
+            </div>
+            <p className="text-xs text-slate-200 font-mono line-clamp-2 mb-2">
+              "{gitToast.message}"
+            </p>
+            <div className="flex items-center gap-1.5 text-[10px] font-mono text-emerald-400">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>Agents awakened & rebuilt portfolio version v{portfolio.version}.4</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Luxury System Footer */}
       <footer className="border-t border-white/10 bg-slate-950/90 py-12 text-xs font-tech text-slate-400">
@@ -392,7 +519,7 @@ export const AppContent: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-4 text-slate-400 font-mono text-[11px]">
-            <span>Version v{portfolio.version}.0</span>
+            <span>Version v{portfolio.version}.4</span>
             <span>•</span>
             <span className="text-cyan-400 font-semibold flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
